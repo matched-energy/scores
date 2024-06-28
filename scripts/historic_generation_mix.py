@@ -61,11 +61,12 @@ def group_by_month_and_tech(d):
     ).reset_index()
 
 
-def main(path_historic_generation_mix, start, end, path_processed_output):
+def main(path_historic_generation_mix, start, end, path_grid_hh, path_grid_month_tech):
     d = read(path_historic_generation_mix, start, end)
+    d.to_csv(path_grid_hh, index=False)
     plot(d)
     d_agg_month_tech = group_by_month_and_tech(d)
-    d_agg_month_tech.to_csv(path_processed_output, index=False)
+    d_agg_month_tech.to_csv(path_grid_month_tech, index=False)
 
 
 if __name__ == "__main__":
@@ -73,5 +74,6 @@ if __name__ == "__main__":
         path_historic_generation_mix=sys.argv[1],
         start=sys.argv[2],
         end=sys.argv[3],
-        path_processed_output=sys.argv[4],
+        path_grid_hh=sys.argv[4],
+        path_grid_month_tech=sys.argv[5],
     )
