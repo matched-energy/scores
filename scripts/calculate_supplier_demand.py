@@ -3,6 +3,7 @@ import os
 import sys
 from io import StringIO
 
+import numpy as np
 import pandas as pd
 
 COLUMN_MAP_APD = {
@@ -64,18 +65,21 @@ def extract_data(df, bsc_party_id="PURE"):
                 low_lim = i  # Assign a low limit for the row No. for which the data file will be iterated
 
     def f(_df, header="APD", column_map=COLUMN_MAP_APD):
-        df1 = pd.DataFrame()  # Create an empty DataFrame to store the data
-        df1["Settlement Period"] = 0  # Add a Settlement Period column
+        lines = []
 
         # Loop through all nested rows for the BSC Party Id using the low row limit
         for i, line in _df[low_lim + 1 :].iterrows():
             if line[0] == "SP7":  # Identify the Settlement Period
-                SP = line[1]
+                SP = int(line[1])
             if line[0] == header:  # Identify the APD for the Settlement Period
-                df1 = df1.append(line)
-                df1.loc[i, "Settlement Period"] = SP
+                lines.append(np.append(line, SP))
+
             if line[0] == "BPH":  # Exit loop once next BPH has been detected
                 break
+
+        df1 = pd.DataFrame(
+            lines, columns=list(range(len(lines[0]) - 1)) + ["Settlement Period"]
+        )
 
         settlement_date = _df.loc[1, 1]  # Identify Settlement Period for csv file name
         run_type = _df.loc[1, 2]  # Identify Settlement Run Type
@@ -111,9 +115,9 @@ def extract_data(df, bsc_party_id="PURE"):
 
 def read_csv(content):
     col_count = [len(l.split("|")) for l in content.splitlines()]
-    column_names = [i for i in range(0, max(col_count))]
+    column_index = [i for i in range(0, max(col_count))]
     return pd.read_csv(
-        StringIO(content), header=None, delimiter="|", names=column_names
+        StringIO(content), header=None, delimiter="|", names=column_index
     )
 
 
