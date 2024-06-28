@@ -1,3 +1,4 @@
+import glob
 import gzip
 import os
 import sys
@@ -51,34 +52,31 @@ def calculate_half_hourly_load(df_final):
     )
 
 
-def extract_data(df, bsc_party_id="PURE"):
-    low_lim = 0  # Initiate low limit variable
+def extract_data(df, bsc_party_ids):
 
-    # Loop through each row in the DataFrame
-    for i, line in df.iterrows():
-        if (
-            line[0] == "BPH"
-        ):  # Identify the BSC Party through the BSC Party Header (BPH) rows in the file
-            if (
-                line[8] == bsc_party_id
-            ):  # Check if the row corresponds to the user inputted BSC Party Id
-                low_lim = i  # Assign a low limit for the row No. for which the data file will be iterated
-
-    def f(_df, header="APD", column_map=COLUMN_MAP_APD):
+    def f(_df, _idx, bsc_party_id, header="APD", column_map=COLUMN_MAP_APD):
         lines = []
 
         # Loop through all nested rows for the BSC Party Id using the low row limit
-        for i, line in _df[low_lim + 1 :].iterrows():
+        for i, line in _df[_idx + 1 :].iterrows():
             if line[0] == "SP7":  # Identify the Settlement Period
                 SP = int(line[1])
             if line[0] == header:  # Identify the APD for the Settlement Period
-                lines.append(np.append(line, SP))
+                lines.append(
+                    np.append(
+                        line,
+                        [
+                            SP,
+                            bsc_party_id,
+                        ],
+                    )
+                )
 
             if line[0] == "BPH":  # Exit loop once next BPH has been detected
                 break
 
         df1 = pd.DataFrame(
-            lines, columns=list(range(len(lines[0]) - 1)) + ["Settlement Period"]
+            lines, columns=list(range(len(lines[0]) - 2)) + ["Settlement Period", "BSC"]
         )
 
         settlement_date = _df.loc[1, 1]  # Identify Settlement Period for csv file name
@@ -94,23 +92,37 @@ def extract_data(df, bsc_party_id="PURE"):
 
         df_final = df1.loc[
             :,
-            ["Settlement Date", "Settlement Period", "Settlement Run Type"]
+            ["BSC", "Settlement Date", "Settlement Period", "Settlement Run Type"]
             + list(range(1, len(column_map) + 1)),
         ]  # Extract relevant columns of interest
         return df_final.rename(columns=column_map)
 
-    df_final = f(df, "BP7", COLUMN_MAP_BP7)
-    df_final.reset_index(drop=True, inplace=True)  # Reset Index of DataFrame
+    # Loop through each row in the DataFrame
+    for i, line in df.iterrows():
+        if (
+            line[0] == "BPH"
+        ):  # Identify the BSC Party through the BSC Party Header (BPH) rows in the file
+            if (
+                line[8] in bsc_party_ids
+            ):  # Check if the row corresponds to the user inputted BSC Party Id
+                bsc_party_id = line[8]
 
-    df_final["BM Unit Metered Volume"] = df_final["BM Unit Metered Volume"].astype(
-        float
-    )
-    df_final["Period Information Imbalance Volume"] = df_final[
-        "Period Information Imbalance Volume"
-    ].astype(float)
-    df_final["Settlement Period"] = df_final["Settlement Period"].astype(int)
+                df_final = f(df, i, bsc_party_id, "BP7", COLUMN_MAP_BP7)
+                df_final.reset_index(
+                    drop=True, inplace=True
+                )  # Reset Index of DataFrame
 
-    return df_final  # Display the Dataframe inline for reference
+                df_final["BM Unit Metered Volume"] = df_final[
+                    "BM Unit Metered Volume"
+                ].astype(float)
+                df_final["Period Information Imbalance Volume"] = df_final[
+                    "Period Information Imbalance Volume"
+                ].astype(float)
+                df_final["Settlement Period"] = df_final["Settlement Period"].astype(
+                    int
+                )
+
+                yield bsc_party_id, df_final
 
 
 def read_csv(content):
@@ -121,21 +133,24 @@ def read_csv(content):
     )
 
 
-def process_file(filename, input_dir, output_dir, bsc_party_id):
+def process_file(filename, input_dir, output_dir, bsc_party_ids):
     input_path = os.path.join(input_dir, filename)
-    output_path = os.path.join(output_dir, filename).replace(".gz", ".csv")
+    output_path_prefix = os.path.join(output_dir, filename.strip(".gz"))
     with gzip.open(input_path, "rt") as f_in:
-        if not os.path.isfile(output_path):
+        if not glob.glob(output_path_prefix + "*"):
             print("Processing {}".format(input_path))
             df = read_csv(f_in.read())
-            df_final = extract_data(df, bsc_party_id)
-            load = calculate_half_hourly_load(df_final)
-            load.to_csv(output_path, index=False)
+            for bsc, df_final in extract_data(df, bsc_party_ids.split(" ")):
+                load = calculate_half_hourly_load(df_final)
+                load.to_csv(
+                    output_path_prefix + "_{}.csv".format(bsc),
+                    index=False,
+                )
         else:  # Skip if file already exists
             print("Skipping {}".format(input_path))
 
 
-def main(input_dir, output_dir, bsc_party_id):
+def main(input_dir, output_dir, bsc_party_ids):
     filenames = sorted(
         [
             filename
@@ -144,7 +159,7 @@ def main(input_dir, output_dir, bsc_party_id):
         ]
     )
     for filename in filenames:
-        process_file(filename, input_dir, output_dir, bsc_party_id)
+        process_file(filename, input_dir, output_dir, bsc_party_ids)
 
 
 if __name__ == "__main__":
