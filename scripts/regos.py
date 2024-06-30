@@ -186,9 +186,13 @@ def simplify_technology_classification(d_agg_month_tech):
         "Off-shore Wind": "WIND",
         "On-shore Wind": "WIND",
         "Photovoltaic": "SOLAR",
+        "Photovoltaic 50kW DNC or less": "SOLAR",
         "Wind": "WIND",
         "Hydro 20MW DNC or less": "HYDRO",
+        "Hydro 50kW DNC or less": "HYDRO",
         "Micro Hydro": "HYDRO",
+        "Sewage Gas": "OTHER",
+        "Biodegradable": "BIOMASS",
     }
     d_agg_month_tech["Technology Group Simplified"] = d_agg_month_tech[
         "Technology Group"
