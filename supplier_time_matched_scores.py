@@ -54,11 +54,19 @@ def plot(hh_generation, hh_load):
         )
     )
     fig.update_layout(
-        title="Generation & Load",
-        yaxis_title="MW",
+        yaxis=dict(
+            title="MW",
+        ),
+        legend=dict(
+            orientation='h',
+            yanchor='bottom',
+            y=1.02,
+            xanchor='right',
+            x=1
+        ),
         barmode="stack",
-        plot_bgcolor="white",
-        paper_bgcolor="white",
+        plot_bgcolor="rgba(255,255,255,1)",
+        paper_bgcolor="rgba(255,255,255,1)",
     )
     fig.write_html("/tmp/supplier_generation_and_load.html")
 
