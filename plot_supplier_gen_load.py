@@ -1,11 +1,7 @@
-import collections
-import pprint
 import sys
 
 import pandas as pd
 import plotly.graph_objects as go
-
-import plot_supplier_gen_load
 
 pd.set_option("display.max_columns", 1000)
 
@@ -16,27 +12,50 @@ def scores(hh_generation, hh_load):
     hh_generation["TOTAL"] = hh_generation[[f"{tech}_supplier" for tech in TECH]].sum(
         axis=1
     )
-    hh_load["deficit"] = (
-        hh_load["Period Information Imbalance Volume"] - hh_generation["TOTAL"]
-    ).clip(lower=0)
-    pprint.pprint(
-        collections.OrderedDict(
-            generation_total=hh_generation["TOTAL"].sum(),
-            load_total=hh_load["Period Information Imbalance Volume"].sum(),
-            unmatched_volume_hh=hh_load["deficit"].sum(),
-            matched_volume_percent_hh=(
-                1
-                - hh_load["deficit"].sum()
-                / hh_load["Period Information Imbalance Volume"].sum()
+    load_col = "Period Information Imbalance Volume"
+    hh_load["net_load"] = (hh_load[load_col] - hh_generation["TOTAL"]).clip(lower=0)
+    print(">" * 10)
+    print(
+        hh_generation["TOTAL"].sum(),
+        hh_load[load_col].sum(),
+        hh_load["net_load"].sum(),
+        (1 - hh_load["net_load"].sum() / hh_load[load_col].sum()) * 100,
+        hh_generation["TOTAL"].sum() / hh_load[load_col].sum(),
+    )
+    # print(hh_generation.sum(axis=0) / 819312)
+    print(">" * 10)
+
+
+def plot(hh_generation, hh_load):
+    fig = go.Figure()
+
+    for tech in TECH:
+        fig.add_trace(
+            go.Scatter(
+                x=hh_generation["DATETIME"],
+                y=hh_generation[f"{tech}_supplier"] * 2,  # MW
+                name=tech,
+                stackgroup="one",
             )
-            * 100,
-            matched_volume_percent_annual=(
-                hh_generation["TOTAL"].sum()
-                / hh_load["Period Information Imbalance Volume"].sum()
-            )
-            * 100,
+        )
+    fig.add_trace(
+        go.Scatter(
+            x=hh_load["Settlement Datetime"],
+            y=hh_load["Period Information Imbalance Volume"] * 2,  # MW
+            name="load",
+            line=dict(color="black", width=2),
         )
     )
+    fig.update_layout(
+        yaxis=dict(
+            title="MW",
+        ),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        barmode="stack",
+        plot_bgcolor="rgba(255,255,255,1)",
+        paper_bgcolor="rgba(255,255,255,1)",
+    )
+    fig.write_html("/tmp/supplier_generation_and_load.html")
 
 
 def calculate_supplier_generation(
@@ -87,7 +106,7 @@ def main(
         path_supplier_month_tech, path_grid_month_tech, path_grid_hh_generation
     )
     hh_load = get_supplier_load(path_supplier_hh_load)
-    plot_supplier_gen_load.plot(hh_generation, hh_load)
+    plot(hh_generation, hh_load)
     scores(hh_generation, hh_load)
 
 
