@@ -1,32 +1,13 @@
+import datetime
 import sys
 
 import pandas as pd
 import plotly.graph_objects as go
 
-pd.set_option("display.max_columns", 1000)
-
 TECH = ["BIOMASS", "HYDRO", "OTHER", "WIND", "SOLAR"]
 
 
-def scores(hh_generation, hh_load):
-    hh_generation["TOTAL"] = hh_generation[[f"{tech}_supplier" for tech in TECH]].sum(
-        axis=1
-    )
-    load_col = "Period Information Imbalance Volume"
-    hh_load["net_load"] = (hh_load[load_col] - hh_generation["TOTAL"]).clip(lower=0)
-    print(">" * 10)
-    print(
-        hh_generation["TOTAL"].sum(),
-        hh_load[load_col].sum(),
-        hh_load["net_load"].sum(),
-        (1 - hh_load["net_load"].sum() / hh_load[load_col].sum()) * 100,
-        hh_generation["TOTAL"].sum() / hh_load[load_col].sum(),
-    )
-    # print(hh_generation.sum(axis=0) / 819312)
-    print(">" * 10)
-
-
-def plot(hh_generation, hh_load):
+def plot_old(hh_generation, hh_load):
     fig = go.Figure()
 
     for tech in TECH:
@@ -58,57 +39,164 @@ def plot(hh_generation, hh_load):
     fig.write_html("/tmp/supplier_generation_and_load.html")
 
 
-def calculate_supplier_generation(
-    path_supplier_month_tech, path_grid_month_tech, path_grid_hh_generation
-):
-    supplier_month_tech = pd.read_csv(path_supplier_month_tech)
-    grid_month_tech = pd.read_csv(path_grid_month_tech)
+def plot(hh_generation, hh_load):
 
-    supplier_month_tech["Output Month"] = pd.to_datetime(
-        supplier_month_tech["Output Month"]
-    )
-    grid_month_tech["month"] = pd.to_datetime(grid_month_tech["month"])
-
-    supplier_month_tech.set_index("Output Month", inplace=True)
-    grid_month_tech.set_index("month", inplace=True)
-    supplier_month_tech_scale = supplier_month_tech / grid_month_tech
-
-    hh_generation = pd.read_csv(path_grid_hh_generation)
-    hh_generation["DATETIME"] = pd.to_datetime(hh_generation["DATETIME"])
-    hh_generation["date"] = (
-        hh_generation["DATETIME"].dt.to_period("M").dt.to_timestamp()
-    )
-
-    for tech in TECH:
-        hh_generation[f"{tech}_scale"] = supplier_month_tech_scale.loc[
-            hh_generation["date"], tech
-        ].values
-        hh_generation[f"{tech}_supplier"] = (  ## now in MWh!!
-            hh_generation[f"{tech}_scale"] * hh_generation[tech] / 2
+    def slice(start, end):
+        print(start, end)
+        data = []
+        for tech in TECH:
+            data.append(
+                go.Scatter(
+                    x=hh_generation["DATETIME"][start:end],
+                    y=hh_generation[f"{tech}_supplier"][start:end] * 2,  # MW
+                    name=tech,
+                    stackgroup="one",
+                    # mode="none",
+                )
+            )
+        data.append(
+            go.Scatter(
+                x=hh_load["Settlement Datetime"][start:end],
+                y=hh_load["Period Information Imbalance Volume"][start:end] * 2,  # MW
+                name="load",
+                line=dict(color="black", width=2),
+            )
         )
+        return data
 
-    return hh_generation[["DATETIME"] + [f"{tech}_supplier" for tech in TECH]]
-
-
-def get_supplier_load(path_supplier_hh_load):
-    hh_load = pd.read_csv(path_supplier_hh_load)
-    hh_load["Settlement Datetime"] = pd.to_datetime(hh_load["Settlement Datetime"])
-    return hh_load
-
-
-def main(
-    path_supplier_month_tech,
-    path_grid_month_tech,
-    path_grid_hh_generation,
-    path_supplier_hh_load,
-):
-    hh_generation = calculate_supplier_generation(
-        path_supplier_month_tech, path_grid_month_tech, path_grid_hh_generation
+    layout = go.Layout(
+        yaxis=dict(
+            title="MW",
+        ),
+        xaxis=dict(
+            range=[datetime.datetime(2022, 4, 1), datetime.datetime(2022, 4, 30)],
+            rangeslider=dict(
+                visible=True,
+            ),
+        ),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        barmode="stack",
+        plot_bgcolor="rgba(255,255,255,1)",
+        paper_bgcolor="rgba(255,255,255,1)",
+        width=1200,
+        height=700,
     )
-    hh_load = get_supplier_load(path_supplier_hh_load)
-    plot(hh_generation, hh_load)
-    scores(hh_generation, hh_load)
+
+    d = slice(0, 100000)
+    fig = go.Figure(
+        data=d,
+        # frames=[go.Frame(data=d) for i in range(7)],
+        layout=layout,
+    )
+    for i, f in enumerate(fig.frames):
+        f.layout.update(
+            xaxis=dict(
+                range=[
+                    datetime.datetime(2022, 4, 1),
+                    datetime.datetime(2022, 4, 7) + datetime.timedelta(days=i),
+                ],
+                rangeslider=dict(
+                    visible=True,
+                ),
+            ),
+        )
+    fig.write_html("/tmp/supplier_generation_and_load.html")
+    return fig
 
 
-if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+def plot_slider(hh_generation, hh_load):
+
+    def slice(start, end):
+        print(start, end)
+        data = []
+        for tech in TECH:
+            data.append(
+                go.Scatter(
+                    x=hh_generation["DATETIME"][start:end],
+                    y=hh_generation[f"{tech}_supplier"][start:end] * 2,  # MW
+                    name=tech,
+                    stackgroup="one",
+                )
+            )
+        data.append(
+            go.Scatter(
+                x=hh_load["Settlement Datetime"][start:end],
+                y=hh_load["Period Information Imbalance Volume"][start:end] * 2,  # MW
+                name="load",
+                line=dict(color="black", width=2),
+            )
+        )
+        return data
+
+    layout = go.Layout(
+        yaxis=dict(
+            title="MW",
+        ),
+        # xaxis=dict(
+        #     range=[datetime.datetime(2022, 4, 1), datetime.datetime(2022, 4, 7)],
+        #     rangeslider=dict(
+        #         visible=True,
+        #     ),
+        # ),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        barmode="stack",
+        plot_bgcolor="rgba(255,255,255,1)",
+        paper_bgcolor="rgba(255,255,255,1)",
+    )
+
+    sliders_dict = {
+        "active": 0,
+        "yanchor": "top",
+        "xanchor": "left",
+        "currentvalue": {
+            "font": {"size": 20},
+            "prefix": "Year:",
+            "visible": True,
+            "xanchor": "right",
+        },
+        "transition": {"duration": 3, "easing": "cubic-in-out"},
+        "pad": {"b": 10, "t": 50},
+        "len": 0.9,
+        "x": 0.1,
+        "y": 0,
+        "steps": [],
+    }
+    ranges = []
+    frames = []
+    for i in range(30):
+        i_date = datetime.datetime(2022, 4, 1) + datetime.timedelta(days=i)
+        start_idx = i * 48
+        end_idx = start_idx + 48 * 7
+        ranges.append((i_date, i_date + datetime.timedelta(days=7)))
+        print(i, i_date, start_idx, end_idx)
+        frames.append(go.Frame(data=slice(start_idx, end_idx), name=str(i)))
+        step = {
+            "args": [[i]],
+            "label": str(i),
+            "method": "animate",
+        }
+        sliders_dict["steps"].append(step)
+
+    layout.update(sliders=[sliders_dict])
+
+    fig = go.Figure(
+        data=slice(0, 10000),
+        frames=frames,
+        layout=layout,
+    )
+
+    for i, f in enumerate(fig.frames):
+        i_date = datetime.datetime(2022, 4, 1) + datetime.timedelta(days=i)
+        f.layout.update(
+            xaxis=dict(
+                range=[ranges[i][0], ranges[i][1]],
+                #     i_date,
+                #     i_date + datetime.timedelta(days=7),
+                # ],
+                # rangeslider=dict(
+                #     visible=True,
+                # ),
+            ),
+        )
+    fig.write_html("/tmp/supplier_generation_and_load.html")
+    return fig
