@@ -45,7 +45,16 @@ def calculate_half_hourly_load(df_final):
     return (
         df_final[df_final["BM Unit Id"].str.contains("^2__", regex=True)]
         .groupby(["Settlement Date", "Settlement Period"])[
-            "Period Information Imbalance Volume"
+            [
+                "Period BM Unit Balancing Services Volume",
+                "Period Information Imbalance Volume",
+                "Period Expected Metered Volume",
+                "Transmission Loss Factor",
+                "Transmission Loss Multiplier",
+                "BM Unit Applicable Balancing Services Volume",
+                "Period Supplier BM Unit Delivered Volume",
+                "Period Supplier BM Unit Non BM ABSVD Volume",
+            ]
         ]
         .sum()
         .reset_index()
@@ -115,8 +124,29 @@ def extract_data(df, bsc_party_ids):
                 df_final["BM Unit Metered Volume"] = df_final[
                     "BM Unit Metered Volume"
                 ].astype(float)
+                df_final["Period BM Unit Balancing Services Volume"] = df_final[
+                    "Period BM Unit Balancing Services Volume"
+                ].astype(float)
+                df_final["Period Expected Metered Volume"] = df_final[
+                    "Period Expected Metered Volume"
+                ].astype(float)
                 df_final["Period Information Imbalance Volume"] = df_final[
                     "Period Information Imbalance Volume"
+                ].astype(float)
+                df_final["Transmission Loss Factor"] = df_final[
+                    "Transmission Loss Factor"
+                ].astype(float)
+                df_final["Transmission Loss Multiplier"] = df_final[
+                    "Transmission Loss Multiplier"
+                ].astype(float)
+                df_final["BM Unit Applicable Balancing Services Volume"] = df_final[
+                    "BM Unit Applicable Balancing Services Volume"
+                ].astype(float)
+                df_final["Period Supplier BM Unit Delivered Volume"] = df_final[
+                    "Period Supplier BM Unit Delivered Volume"
+                ].astype(float)
+                df_final["Period Supplier BM Unit Non BM ABSVD Volume"] = df_final[
+                    "Period Supplier BM Unit Non BM ABSVD Volume"
                 ].astype(float)
                 df_final["Settlement Period"] = df_final["Settlement Period"].astype(
                     int
