@@ -1,6 +1,10 @@
 import yaml
 
 
-def from_yaml(path):
+def from_yaml_file(path):
     with open(path, "r") as file:
-        return yaml.load(file, Loader=yaml.FullLoader)
+        return from_yaml_text(file.read())
+
+
+def from_yaml_text(text):
+    return yaml.load(text, Loader=yaml.FullLoader)
