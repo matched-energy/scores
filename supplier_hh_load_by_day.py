@@ -163,21 +163,16 @@ def read_csv(content):
     )
 
 
-def process_file(filename, input_dir, output_dir, bsc_party_ids):
-    input_path = os.path.join(input_dir, filename)
-    output_path_prefix = os.path.join(output_dir, filename.strip(".gz"))
+def process_file(input_path, output_path_prefix, bsc_party_ids):
     with gzip.open(input_path, "rt") as f_in:
-        if not glob.glob(output_path_prefix + "*"):
-            print("Processing {}".format(input_path))
-            df = read_csv(f_in.read())
-            for bsc, df_final in extract_data(df, bsc_party_ids.split(" ")):
-                load = calculate_half_hourly_load(df_final)
+        df = read_csv(f_in.read())
+        for bsc, df_final in extract_data(df, bsc_party_ids):
+            load = calculate_half_hourly_load(df_final)
+            if output_path_prefix:
                 load.to_csv(
                     output_path_prefix + "_{}.csv".format(bsc),
                     index=False,
                 )
-        else:  # Skip if file already exists
-            print("Skipping {}".format(input_path))
 
 
 def main(input_dir, output_dir, bsc_party_ids):
@@ -189,8 +184,14 @@ def main(input_dir, output_dir, bsc_party_ids):
         ]
     )
     for filename in filenames:
-        process_file(filename, input_dir, output_dir, bsc_party_ids)
+        input_path = os.path.join(input_dir, filename)
+        output_path_prefix = os.path.join(output_dir, filename.strip(".gz"))
+        if glob.glob(output_path_prefix + "*"):
+            print(f"Skipping {input_path}")
+        else:
+            print(f"Processing {input_path}")
+            process_file(input_path, output_path_prefix, bsc_party_ids)
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    main(sys.argv[1], sys.argv[2], sys.argv[3].split(" "))
