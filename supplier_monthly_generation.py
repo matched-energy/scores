@@ -212,20 +212,21 @@ def simplify_technology_classification(d_agg_month_tech):
 def main(
     path_raw_rego,
     current_holder_organisation_name,
-    path_processed_regos,
-    path_processed_agg_month_tech,
+    path_processed_regos=None,
+    path_processed_agg_month_tech=None,
 ):
     d = read(path_raw_rego, current_holder_organisation_name)
-    print(StatisticsRaw.run(d))
     # TODO filter just redeemed
     d = parse_output_period(d)
     d_monthly = calculate_monthly_generation(d)
-    d_monthly.to_csv(path_processed_regos, index=False)
-    print(StatisticsProcessed.run(d_monthly))
+    if path_processed_regos:
+        d_monthly.to_csv(path_processed_regos, index=False)
     d_agg_month_tech = group_by_technology_and_month(d_monthly)
-    print(StatisticsProcessed.run(d_agg_month_tech))
+    stats_processed = StatisticsProcessed.run(d_agg_month_tech)
     d_agg_month_tech = simplify_technology_classification(d_agg_month_tech)
-    d_agg_month_tech.to_csv(path_processed_agg_month_tech, index=False)
+    if path_processed_agg_month_tech:
+        d_agg_month_tech.to_csv(path_processed_agg_month_tech, index=False)
+    return stats_processed
 
 
 if __name__ == "__main__":
