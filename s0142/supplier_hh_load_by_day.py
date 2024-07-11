@@ -173,6 +173,7 @@ def process_file(input_path, output_path_prefix, bsc_party_ids):
                     output_path_prefix + "_{}.csv".format(bsc),
                     index=False,
                 )
+            yield bsc, load
 
 
 def main(input_dir, output_dir, bsc_party_ids):

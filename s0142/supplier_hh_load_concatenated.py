@@ -23,7 +23,6 @@ def main(input_dir, output_path):
     df["Settlement Date"] = pd.to_datetime(df["Settlement Date"], dayfirst=True)
     df = df.sort_values(["Settlement Date", "Settlement Period"])
 
-    # Add a column for the interval "Settlement Period * 00:30 from 23:30"
     df["Settlement Datetime"] = df["Settlement Date"] + (
         df["Settlement Period"] - 1
     ) * pd.Timedelta(minutes=30)
@@ -31,8 +30,6 @@ def main(input_dir, output_path):
     df.to_csv(output_path, index=False)
     plot(df)
     return df
-
-    # Continue with further processing or analysis
 
 
 if __name__ == "__main__":
