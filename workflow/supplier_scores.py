@@ -47,15 +47,15 @@ def extract_regos(step_conf, supplier, paths):
     )
 
 
-def calculate_scores(paths, supplier):
+def calculate_scores(step_conf, supplier, paths):
     return scores.supplier_time_matched_scores.main(
         path_supplier_month_tech=os.path.join(
-            paths["LOCAL"]["processed"], f"month-tech-{supplier['file_id']}.csv"
+            step_conf["input_abs"]["processed"], f"month-tech-{supplier['file_id']}.csv"
         ),
         path_grid_month_tech=paths["GRID"]["volumes_by_tech_by_month"],
         path_grid_hh_generation=paths["GRID"]["volumes_by_tech_by_half_hour"],
         path_supplier_hh_load=os.path.join(
-            paths["LOCAL"]["final"],
+            step_conf["input_abs"]["final"],
             f"{supplier['bsc_lead_party_id']}_load.csv",
         ),
     )
@@ -130,8 +130,8 @@ def process_suppliers():
             supplier_results.update(concatenate_days(step_conf, supplier))
         if step_conf := run_conf["steps"].get("extract_regos"):
             supplier_results.update(extract_regos(step_conf, supplier, paths))
-        # if arg_calculate_scores:
-        #     supplier_results.update(calculate_scores(paths, supplier))
+        if step_conf := run_conf["steps"].get("calculate_scores"):
+            supplier_results.update(calculate_scores(step_conf, supplier, paths))
         results[supplier["name"]] = supplier_results
     pprint(results)
     return results
