@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-import scores.s0142.supplier_hh_load_by_day
+import scores.s0142.process_s0142_file
 
 
 def test_process_file():
@@ -10,7 +10,7 @@ def test_process_file():
         "PURE": {"Period Information Imbalance Volume": 2628.072},
         "MERCURY": {"Period Information Imbalance Volume": 38125.445},
     }
-    for bsc_party_id, load in scores.s0142.supplier_hh_load_by_day.process_file(
+    for bsc_party_id, load in scores.s0142.process_s0142_file.process_file(
         input_path=os.path.join(
             os.environ["MATCHED_DATA"],
             "raw",
