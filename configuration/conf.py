@@ -12,10 +12,11 @@ def get_vars(text):
 
 
 def substitute_vars(text):
+    now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     for var in get_vars(text):
         try:
             if var == "DATETIME":
-                replacement = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+                replacement = now
             else:
                 replacement = os.environ[var]
             text = text.replace(f"${{{var}}}", replacement)
