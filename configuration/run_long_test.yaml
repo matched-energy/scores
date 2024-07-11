@@ -1,21 +1,24 @@
 steps: 
-  process_s0142_files:
-    input: canonical  
-    output: staged
-    filenames: 
-      - S0142_20220401_SF_20220427115520.gz 
-      - S0142_20220402_SF_20220427114051.gz
-    bsc_party_ids: 
-      - MERCURY
-      - PURE
+  # process_s0142_files:
+  #   input: canonical  
+  #   output: staged
+  #   filenames: # TODO prefixes 
+  #     - S0142_20220401_SF_20220427115520.gz 
+  #     - S0142_20220402_SF_20220427114051.gz
+  #   bsc_party_ids: 
+  #     - MERCURY
+  #     - PURE
 
   extract_regos:
     input: canonical 
     output: staged 
 
   concatenate_days:
-    input: staged 
+    input: canonical 
     output: staged
+    prefixes: 
+      - S0142_20220401_SF_20220427115520
+      - S0142_20220402_SF_20220427114051.gz
 
   calculate_scores:
     input: staged 

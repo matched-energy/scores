@@ -26,12 +26,14 @@ def concat_and_sort(dfs):
     return df
 
 
-def main(bsc_lead_party_id, input_dir, output_path, plot=False):
+def main(input_dir, output_path, bsc_lead_party_id=None, prefixes=None, plot=False):
     df = concat_and_sort(
         [
             pd.read_csv(os.path.join(input_dir, filename))
             for filename in os.listdir(input_dir)
-            if filename.endswith(".csv") and bsc_lead_party_id in filename
+            if filename.endswith(".csv")
+            and (prefixes is None or any(filename.startswith(p) for p in prefixes))
+            and (bsc_lead_party_id is None or bsc_lead_party_id in filename)
         ]
     )
     df.to_csv(output_path, index=False)

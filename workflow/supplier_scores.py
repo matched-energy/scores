@@ -72,14 +72,15 @@ def process_s0142_files(step_conf):
     return {}
 
 
-def concatenate_days(paths, supplier):
+def concatenate_days(step_conf, supplier):
     scores.s0142.concatenate_days.main(
         bsc_lead_party_id=supplier["bsc_lead_party_id"],
-        input_dir=os.path.join(paths["LOCAL"]["processed"], "S0142"),
+        input_dir=os.path.join(step_conf["input_abs"]["processed"], "S0142"),
         output_path=os.path.join(
-            paths["LOCAL"]["final"],
+            step_conf["output_abs"]["final"],
             f"{supplier['bsc_lead_party_id']}_load.csv",
         ),
+        prefixes=step_conf.get("prefix"),
     )
     return {}
 
@@ -125,10 +126,10 @@ def process_suppliers():
     results = {}
     for supplier in conf.read(f"{CONF_DIR}/suppliers.yaml"):
         supplier_results = {}
+        if step_conf := run_conf["steps"].get("concatenate_days"):
+            supplier_results.update(concatenate_days(step_conf, supplier))
         if step_conf := run_conf["steps"].get("extract_regos"):
             supplier_results.update(extract_regos(step_conf, supplier, paths))
-        # if arg_aggregate_supplier_load:
-        #     supplier_results.update(aggregate_supplier_load(paths, supplier))
         # if arg_calculate_scores:
         #     supplier_results.update(calculate_scores(paths, supplier))
         results[supplier["name"]] = supplier_results
