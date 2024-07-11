@@ -163,25 +163,21 @@ def read_csv(content):
     )
 
 
-def process_file(input_path, output_path_prefix, bsc_party_ids):
+def process_file(input_path, bsc_party_ids):
     with gzip.open(input_path, "rt") as f_in:
         df = read_csv(f_in.read())
         for bsc, df_final in extract_data(df, bsc_party_ids):
-            load = calculate_half_hourly_load(df_final)
-            if output_path_prefix:
-                load.to_csv(
-                    output_path_prefix + "_{}.csv".format(bsc),
-                    index=False,
-                )
-            yield bsc, load
+            yield bsc, calculate_half_hourly_load(df_final)
 
 
-def main(input_dir, output_dir, bsc_party_ids):
+def main(input_dir, output_dir, bsc_party_ids, input_filenames=None):
     filenames = sorted(
         [
             filename
             for filename in os.listdir(input_dir)
-            if filename.startswith("S0142") and filename.endswith(".gz")
+            if filename.startswith("S0142")
+            and filename.endswith(".gz")
+            and (input_filenames is None or filename in input_filenames)
         ]
     )
     for filename in filenames:
@@ -190,8 +186,12 @@ def main(input_dir, output_dir, bsc_party_ids):
         if glob.glob(output_path_prefix + "*"):
             print(f"Skipping {input_path}")
         else:
-            print(f"Processing {input_path}")
-            process_file(input_path, output_path_prefix, bsc_party_ids)
+            for bsc, load in process_file(input_path, bsc_party_ids):
+                if output_path_prefix:
+                    load.to_csv(
+                        output_path_prefix + "_{}.csv".format(bsc),
+                        index=False,
+                    )
 
 
 if __name__ == "__main__":

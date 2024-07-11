@@ -14,11 +14,7 @@ def plot(df):
     fig.show()
 
 
-def main(input_dir, output_path):
-    dfs = []
-    for filename in os.listdir(input_dir):
-        if filename.endswith(".csv"):
-            dfs.append(pd.read_csv(os.path.join(input_dir, filename)))
+def concat_and_sort(dfs):
     df = pd.concat(dfs)
     df["Settlement Date"] = pd.to_datetime(df["Settlement Date"], dayfirst=True)
     df = df.sort_values(["Settlement Date", "Settlement Period"])
@@ -27,6 +23,15 @@ def main(input_dir, output_path):
         df["Settlement Period"] - 1
     ) * pd.Timedelta(minutes=30)
 
+
+def main(input_dir, output_path):
+    df = concat_and_sort(
+        [
+            pd.read_csv(os.path.join(input_dir, filename))
+            for filename in os.listdir(input_dir)
+            if filename.endswith(".csv")
+        ]
+    )
     df.to_csv(output_path, index=False)
     plot(df)
     return df

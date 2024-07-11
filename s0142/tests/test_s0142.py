@@ -1,6 +1,7 @@
 import os
 
 import pytest
+
 import scores.s0142.supplier_hh_load_by_day
 
 
@@ -16,7 +17,6 @@ def test_process_file():
             "S0142",
             "S0142_20220401_SF_20220427115520.gz",
         ),
-        output_path_prefix=None,
         bsc_party_ids=expected.keys(),
     ):
         result = load.sum()
