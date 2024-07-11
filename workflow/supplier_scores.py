@@ -19,9 +19,7 @@ def create_staged_directories(paths):
     os.mkdir(paths["LOCAL"]["staged"]["final"])
 
 
-def setup(run_conf, paths=None):
-    paths = conf.read(f"{CONF_DIR}/paths.yaml") if paths is None else conf.read(paths)
-
+def setup(run_conf, paths):
     created_staged_directories = False
     for step_name, step_conf in run_conf["steps"].items():
         for io in ["input", "output"]:
@@ -38,12 +36,13 @@ def setup(run_conf, paths=None):
     return run_conf
 
 
-def extract_regos(paths, supplier):
+def extract_regos(step_conf, supplier, paths):
     return scores.supplier_monthly_generation.main(
         paths["REGOS"],
         supplier["rego_organisation_name"],
         path_processed_agg_month_tech=os.path.join(
-            paths["LOCAL"]["processed"], f"month-tech-{supplier['file_id']}.csv"
+            step_conf["output_abs"]["processed"],
+            f"month-tech-{supplier['file_id']}.csv",
         ),
     )
 
@@ -62,17 +61,12 @@ def calculate_scores(paths, supplier):
     )
 
 
-def process_s0142_files(run_conf):
-    input_dirs = run_conf["steps"]["process_s0142_files"]["input_abs"]
-    output_dirs = run_conf["steps"]["process_s0142_files"]["output_abs"]
-    filenames = run_conf["steps"]["process_s0142_files"].get("filenames")
-    bsc_party_ids = run_conf["steps"]["process_s0142_files"].get("bsc_party_ids")
-
+def process_s0142_files(step_conf):
     scores.s0142.process_s0142_file.main(
-        input_dir=os.path.join(input_dirs["raw"], "S0142"),
-        output_dir=os.path.join(output_dirs["processed"], "S0142"),
-        input_filenames=filenames,
-        bsc_party_ids=bsc_party_ids,
+        input_dir=os.path.join(step_conf["input_abs"], "S0142"),
+        output_dir=os.path.join(step_conf["output_abs"], "S0142"),
+        input_filenames=step_conf.get("filenames"),
+        bsc_party_ids=step_conf.get("bsc_party_ids"),
     )
 
     return {}
@@ -116,25 +110,30 @@ def process_suppliers():
     args = parse_args()
 
     run_conf = conf.read(args.run)
+    paths = (
+        conf.read(f"{CONF_DIR}/paths.yaml")
+        if args.paths is None
+        else conf.read(args.paths)
+    )
 
-    run_conf = setup(run_conf, args.paths)
+    run_conf = setup(run_conf, paths)
     print(run_conf)
 
-    if "process_s0142_files" in run_conf["steps"]:
-        process_s0142_files(run_conf)
+    if step_conf := run_conf["steps"].get("process_s0142_files"):
+        process_s0142_files(step_conf)
 
-    # results = {}
-    # for supplier in conf.read("suppliers.yaml"):
-    #     supplier_results = {}
-    #     if arg_extract_regos:
-    #         supplier_results.update(extract_regos(paths, supplier))
-    #     if arg_aggregate_supplier_load:
-    #         supplier_results.update(aggregate_supplier_load(paths, supplier))
-    #     if arg_calculate_scores:
-    #         supplier_results.update(calculate_scores(paths, supplier))
-    #     results[supplier["name"]] = supplier_results
-    # pprint(results)
-    # return results
+    results = {}
+    for supplier in conf.read(f"{CONF_DIR}/suppliers.yaml"):
+        supplier_results = {}
+        if step_conf := run_conf["steps"].get("extract_regos"):
+            supplier_results.update(extract_regos(step_conf, supplier, paths))
+        # if arg_aggregate_supplier_load:
+        #     supplier_results.update(aggregate_supplier_load(paths, supplier))
+        # if arg_calculate_scores:
+        #     supplier_results.update(calculate_scores(paths, supplier))
+        results[supplier["name"]] = supplier_results
+    pprint(results)
+    return results
 
 
 if __name__ == "__main__":
