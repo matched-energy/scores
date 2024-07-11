@@ -4,9 +4,11 @@ GRID:
   volumes_by_tech_by_month: ${MATCHED_DATA}/processed/grid-month-tech.csv 
   volumes_by_tech_by_half_hour: ${MATCHED_DATA}/processed/grid_hh.csv  
 
-LOCAL: 
-  raw: ${MATCHED_DATA}/raw
-  processed_to_review: /tmp/scores-data-processed-${DATETIME}
-  final_to_review: /tmp/scores-data-final-${DATETIME}
-  processed_overwrite: ${MATCHED_DATA}/raw
-  final_overwrite: ${MATCHED_DATA}/raw
+LOCAL:
+  canonical:
+    raw: ${MATCHED_DATA}/raw
+    processed: ${MATCHED_DATA}/processed
+    final: ${MATCHED_DATA}/final
+  staged:
+    processed: /tmp/scores-data-processed-${DATETIME}
+    final: /tmp/scores-data-final-${DATETIME}

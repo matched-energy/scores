@@ -4,8 +4,6 @@ import re
 
 import scores.common.utils as utils
 
-CONF_DIR = os.path.dirname(os.path.abspath(__file__))
-
 
 def get_vars(text):
     return re.findall(r"\${(.*?)}", text)
@@ -27,6 +25,6 @@ def substitute_vars(text):
     return text
 
 
-def read(filename):
-    with open(f"{CONF_DIR}/{filename}", "r") as file:
+def read(path):
+    with open(path, "r") as file:
         return utils.from_yaml_text(substitute_vars(file.read()))

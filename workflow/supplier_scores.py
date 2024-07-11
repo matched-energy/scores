@@ -1,3 +1,4 @@
+import argparse
 import os
 from pprint import pprint
 
@@ -7,24 +8,34 @@ import scores.supplier_monthly_generation
 import scores.supplier_time_matched_scores
 from scores.configuration import conf
 
+CONF_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "configuration"
+)
 
-def setup(paths, overwrite):
-    paths = conf.read("paths.yaml")
-    if overwrite:
-        paths["LOCAL"]["processed"] = paths["LOCAL"]["processed_overwrite"]
-        paths["LOCAL"]["final"] = paths["LOCAL"]["final_overwrite"]
-    else:
-        paths["LOCAL"]["processed"] = paths["LOCAL"]["processed_to_review"]
-        paths["LOCAL"]["final"] = paths["LOCAL"]["final_to_review"]
 
-    dirs = [
-        paths["LOCAL"]["processed"],
-        os.path.join(paths["LOCAL"]["processed"], "S0142"),
-        paths["LOCAL"]["final"],
-    ]
-    for dir in dirs:
-        if not os.path.exists(dir):
-            os.mkdir(dir)
+def create_staged_directories(paths):
+    os.mkdir(paths["LOCAL"]["staged"]["processed"])
+    os.mkdir(os.path.join(paths["LOCAL"]["staged"]["processed"], "S0142"))
+    os.mkdir(paths["LOCAL"]["staged"]["final"])
+
+
+def setup(run_conf, paths=None):
+    paths = conf.read(f"{CONF_DIR}/paths.yaml") if paths is None else conf.read(paths)
+
+    created_staged_directories = False
+    for step_name, step_conf in run_conf["steps"].items():
+        for io in ["input", "output"]:
+            path_abs = (
+                step_conf.get(io)
+                if step_conf.get(io) not in ["canonical", "staged"]
+                else paths["LOCAL"][step_conf.get(io)]
+            )
+            run_conf["steps"][step_name][f"{io}_abs"] = path_abs
+        if step_conf.get("output") == "staged" and not created_staged_directories:
+            create_staged_directories(paths)
+            created_staged_directories = True
+
+    return run_conf
 
 
 def extract_regos(paths, supplier):
@@ -51,19 +62,23 @@ def calculate_scores(paths, supplier):
     )
 
 
-def process_s0142_files(paths):
+def process_s0142_files(run_conf):
+    input_dirs = run_conf["steps"]["process_s0142_files"]["input_abs"]
+    output_dirs = run_conf["steps"]["process_s0142_files"]["output_abs"]
+    filenames = run_conf["steps"]["process_s0142_files"].get("filenames")
+    bsc_party_ids = run_conf["steps"]["process_s0142_files"].get("bsc_party_ids")
+
     scores.s0142.process_s0142_file.main(
-        input_dir=os.path.join(paths["LOCAL"]["raw"], "S0142"),
-        input_filenames=[
-            "S0142_20220401_SF_20220427115520.gz",
-            "S0142_20220402_SF_20220427114051.gz",
-        ],
-        output_dir=os.path.join(paths["LOCAL"]["processed"], "S0142"),
-        bsc_party_ids=["PURE", "MERCURY"],
+        input_dir=os.path.join(input_dirs["raw"], "S0142"),
+        output_dir=os.path.join(output_dirs["processed"], "S0142"),
+        input_filenames=filenames,
+        bsc_party_ids=bsc_party_ids,
     )
 
+    return {}
 
-def aggregate_supplier_load(paths, supplier):
+
+def concatenate_days(paths, supplier):
     scores.s0142.concatenate_days.main(
         bsc_lead_party_id=supplier["bsc_lead_party_id"],
         input_dir=os.path.join(paths["LOCAL"]["processed"], "S0142"),
@@ -72,30 +87,54 @@ def aggregate_supplier_load(paths, supplier):
             f"{supplier['bsc_lead_party_id']}_load.csv",
         ),
     )
+    return {}
 
 
-def process_supplier(paths, supplier):
-    results = extract_regos(paths, supplier)
-    aggregate_supplier_load(paths, supplier)
-    results.update(calculate_scores(paths, supplier))
-    return results
+def parse_args():
+    parser = argparse.ArgumentParser(description="Process run configuration.")
+
+    parser.add_argument(
+        "run",
+        type=str,
+        help="Path to YAML file that defines run configuration",
+    )
+    parser.add_argument(
+        "--paths",
+        type=str,
+        help="Path to YAML file that defines paths",
+    )
+
+    return parser.parse_args()
 
 
-def process_suppliers(suppliers="all", overwrite=False):
+def process_suppliers():
     ## Where does year belong? Needs apply to regos and grid.
     ## ^   should handle in pre-processing
     ## ... and be explicit about timeranges in filename
     ## ... and have functions that validate data range & completeness
-    paths = setup(overwrite)
 
-    process_s0142_files(paths)
+    args = parse_args()
 
-    results = {}
-    for supplier in conf.read("suppliers.yaml"):
-        if suppliers == "all" or supplier["name"] in suppliers:
-            results[supplier["name"]] = process_supplier(paths, supplier)
-    pprint(results)
-    return results
+    run_conf = conf.read(args.run)
+
+    run_conf = setup(run_conf, args.paths)
+    print(run_conf)
+
+    if "process_s0142_files" in run_conf["steps"]:
+        process_s0142_files(run_conf)
+
+    # results = {}
+    # for supplier in conf.read("suppliers.yaml"):
+    #     supplier_results = {}
+    #     if arg_extract_regos:
+    #         supplier_results.update(extract_regos(paths, supplier))
+    #     if arg_aggregate_supplier_load:
+    #         supplier_results.update(aggregate_supplier_load(paths, supplier))
+    #     if arg_calculate_scores:
+    #         supplier_results.update(calculate_scores(paths, supplier))
+    #     results[supplier["name"]] = supplier_results
+    # pprint(results)
+    # return results
 
 
 if __name__ == "__main__":
