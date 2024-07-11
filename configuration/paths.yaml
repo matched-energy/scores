@@ -8,5 +8,5 @@ OUTPUT:
   raw: ${MATCHED_DATA}/raw
   processed_to_review: /tmp/scores-data-processed-${DATETIME}
   final_to_review: /tmp/scores-data-final-${DATETIME}
-  processed_OVERWRITE: ${MATCHED_DATA}/raw
-  final_OVERWRITE: ${MATCHED_DATA}/raw
+  processed_overwrite: ${MATCHED_DATA}/raw
+  final_overwrite: ${MATCHED_DATA}/raw
