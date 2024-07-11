@@ -4,39 +4,38 @@ import sys
 
 import pandas as pd
 import plotly.graph_objects as go
-
-import plot_supplier_gen_load
+import scores.plot_supplier_gen_load
 
 pd.set_option("display.max_columns", 1000)
 
 TECH = ["BIOMASS", "HYDRO", "OTHER", "WIND", "SOLAR"]
 
 
-def scores(hh_generation, hh_load):
+def calc_scores(hh_generation, hh_load):
     hh_generation["TOTAL"] = hh_generation[[f"{tech}_supplier" for tech in TECH]].sum(
         axis=1
     )
     hh_load["deficit"] = (
         hh_load["Period Information Imbalance Volume"] - hh_generation["TOTAL"]
     ).clip(lower=0)
-    pprint.pprint(
-        collections.OrderedDict(
-            generation_total=hh_generation["TOTAL"].sum(),
-            load_total=hh_load["Period Information Imbalance Volume"].sum(),
-            unmatched_volume_hh=hh_load["deficit"].sum(),
-            matched_volume_percent_hh=(
-                1
-                - hh_load["deficit"].sum()
-                / hh_load["Period Information Imbalance Volume"].sum()
-            )
-            * 100,
-            matched_volume_percent_annual=(
-                hh_generation["TOTAL"].sum()
-                / hh_load["Period Information Imbalance Volume"].sum()
-            )
-            * 100,
+    scores = collections.OrderedDict(
+        generation_total=hh_generation["TOTAL"].sum(),
+        load_total=hh_load["Period Information Imbalance Volume"].sum(),
+        unmatched_volume_hh=hh_load["deficit"].sum(),
+        matched_volume_percent_hh=(
+            1
+            - hh_load["deficit"].sum()
+            / hh_load["Period Information Imbalance Volume"].sum()
         )
+        * 100,
+        matched_volume_percent_annual=(
+            hh_generation["TOTAL"].sum()
+            / hh_load["Period Information Imbalance Volume"].sum()
+        )
+        * 100,
     )
+    pprint.pprint(scores)
+    return scores
 
 
 def calculate_supplier_generation(
@@ -87,8 +86,9 @@ def main(
         path_supplier_month_tech, path_grid_month_tech, path_grid_hh_generation
     )
     hh_load = get_supplier_load(path_supplier_hh_load)
-    plot_supplier_gen_load.plot(hh_generation, hh_load)
-    scores(hh_generation, hh_load)
+
+    scores.plot_supplier_gen_load.plot(hh_generation, hh_load)
+    return calc_scores(hh_generation, hh_load)
 
 
 if __name__ == "__main__":

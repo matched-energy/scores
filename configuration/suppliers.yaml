@@ -1,5 +1,9 @@
 - name: Good Energy
+  file_id: good-energy
+  bsc_lead_party_id: PURE
   rego_organisation_name: Good Energy Ltd
 
 - name: Octopus 
+  file_id: octopus
+  bsc_lead_party_id: MERCURY 
   rego_organisation_name: Octopus Energy Limited
