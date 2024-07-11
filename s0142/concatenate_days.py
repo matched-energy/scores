@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 
-def plot(df):
+def show_plot(df):
     fig = go.Figure(
         data=go.Scatter(
             x=df["Settlement Datetime"], y=df["Period Information Imbalance Volume"]
@@ -23,17 +23,20 @@ def concat_and_sort(dfs):
         df["Settlement Period"] - 1
     ) * pd.Timedelta(minutes=30)
 
+    return df
 
-def main(input_dir, output_path):
+
+def main(bsc_lead_party_id, input_dir, output_path, plot=False):
     df = concat_and_sort(
         [
             pd.read_csv(os.path.join(input_dir, filename))
             for filename in os.listdir(input_dir)
-            if filename.endswith(".csv")
+            if filename.endswith(".csv") and bsc_lead_party_id in filename
         ]
     )
     df.to_csv(output_path, index=False)
-    plot(df)
+    if plot:
+        show_plot(df)
     return df
 
 

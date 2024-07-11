@@ -1,0 +1,12 @@
+REGOS: ${MATCHED_DATA}/raw/regos-apr2022-mar2023.csv 
+
+GRID: 
+  volumes_by_tech_by_month: ${MATCHED_DATA}/processed/grid-month-tech.csv 
+  volumes_by_tech_by_half_hour: ${MATCHED_DATA}/processed/grid_hh.csv  
+
+OUTPUT: 
+  raw: ${MATCHED_DATA}/raw
+  processed_to_review: /tmp/scores-data-processed-${DATETIME}
+  final_to_review: /tmp/scores-data-final-${DATETIME}
+  processed_OVERWRITE: ${MATCHED_DATA}/raw
+  final_OVERWRITE: ${MATCHED_DATA}/raw
