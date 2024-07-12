@@ -1,9 +1,15 @@
+####################################################################################################
+### SETUP
+####################################################################################################
 local_dirs:
   canonical:
     ${MATCHED_DATA}
   staged:
     /tmp/
 
+####################################################################################################
+### RUN CONFIGURATION
+####################################################################################################
 start_datetime: 
   2022-04-01T00:00:00Z
 end_datetime: 
@@ -14,7 +20,7 @@ suppliers:
   - Octopus 
 
 steps: 
-  ### GRID
+  # Grid
   grid_gen_by_tech_by_month:
     input: 
       path_historic_generation_mix: 
@@ -31,7 +37,7 @@ steps:
         sub_dir: processed 
         filename: grid-month-tech.csv
 
-  ### SUPPLIER GENERATION
+  # Supplier generation
   supplier_gen_by_tech_by_month:
     input: 
       path_raw_rego: 
@@ -64,7 +70,7 @@ steps:
           sub_dir: final
           filename: /SUPPLIER/_gen_by_tech_by_half_hour.csv
 
-  ### SUPPLIER DEMAND 
+  # Supplier demand 
   parse_s0142_files: 
     input: 
       input_dir: 
@@ -92,7 +98,7 @@ steps:
       # - S0142_20220402_SF_20220427114051.gz
       
 
-  # CALCULATE SCORES
+  # Calculate scores
   supplier_scores:
     input: 
       path_supplier_month_tech:
