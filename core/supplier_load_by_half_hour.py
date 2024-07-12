@@ -4,14 +4,7 @@ import sys
 import pandas as pd
 import plotly.graph_objects as go
 
-
-def show_plot(df):
-    fig = go.Figure(
-        data=go.Scatter(
-            x=df["Settlement Datetime"], y=df["Period Information Imbalance Volume"]
-        )
-    )
-    fig.show()
+import scores.plot.plot_supplier
 
 
 def concat_and_sort(dfs):
@@ -38,7 +31,7 @@ def main(input_dir, output_path, bsc_lead_party_id=None, prefixes=None, plot=Fal
     )
     df.to_csv(output_path, index=False)
     if plot:
-        show_plot(df)
+        scores.plot.plot_supplier.plot_load(df)
     return df
 
 

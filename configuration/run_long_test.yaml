@@ -101,18 +101,6 @@ steps:
   # Calculate scores
   supplier_scores:
     input: 
-      path_supplier_month_tech:
-        root_dir: staged
-        sub_dir: processed
-        filename: /SUPPLIER/-month-tech.csv
-      path_grid_month_tech:
-        root_dir: staged
-        sub_dir: processed
-        filename: grid-month-tech.csv
-      path_grid_hh_generation:
-        root_dir: staged
-        sub_dir: processed
-        filename: grid_hh.csv
       path_supplier_gen_by_tech_by_half_hour:
         root_dir: staged
         sub_dir: final 

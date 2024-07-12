@@ -1,12 +1,11 @@
 import collections
-import os
 import pprint
 import sys
 
 import pandas as pd
-import plotly.graph_objects as go
+
 import scores.configuration.conf as conf
-import scores.plot.plot_supplier_gen_load
+import scores.plot.plot_supplier
 
 
 def calc_scores(hh_generation, hh_load):
@@ -45,16 +44,16 @@ def get_supplier_load(path_supplier_hh_load):
 
 
 def main(
-    path_supplier_month_tech,
-    path_grid_month_tech,
-    path_grid_hh_generation,
     path_supplier_gen_by_tech_by_half_hour,
     path_supplier_hh_load,
+    plot=False,
 ):
     hh_generation = pd.read_csv(path_supplier_gen_by_tech_by_half_hour)
     hh_load = get_supplier_load(path_supplier_hh_load)
 
-    scores.plot.plot_supplier_gen_load.plot(hh_generation, hh_load)
+    if plot:
+        scores.plot.plot_supplier.plot_and_gen(hh_generation, hh_load)
+
     return calc_scores(hh_generation, hh_load)
 
 

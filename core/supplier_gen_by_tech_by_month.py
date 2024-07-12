@@ -1,5 +1,4 @@
 import datetime
-import pprint
 import sys
 
 import numpy as np

@@ -57,16 +57,6 @@ def supplier_gen_by_tech_by_half_hour(run_conf, step_conf, supplier):
 
 def supplier_scores(run_conf, step_conf, supplier):
     return scores.core.supplier_scores.main(
-        path_supplier_month_tech=make_path(
-            step_conf,
-            "input",
-            "path_supplier_month_tech",
-            dict(SUPPLIER=supplier["file_id"]),
-        ),
-        path_grid_month_tech=make_path(step_conf, "input", "path_grid_month_tech"),
-        path_grid_hh_generation=make_path(
-            step_conf, "input", "path_grid_hh_generation"
-        ),
         path_supplier_gen_by_tech_by_half_hour=make_path(
             step_conf,
             "input",
