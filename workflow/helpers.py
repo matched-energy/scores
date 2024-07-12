@@ -4,34 +4,36 @@ import os
 from scores.configuration import conf
 
 
-def create_staged_directories(paths):
-    os.mkdir(paths["LOCAL"]["staged"]["processed"])
-    os.mkdir(os.path.join(paths["LOCAL"]["staged"]["processed"], "S0142"))
-    os.mkdir(paths["LOCAL"]["staged"]["final"])
+def create_staged_dirs_and_set_abs_paths(run_conf, paths):
 
+    os.mkdir(paths["LOCAL"]["staged"])
+    os.mkdir(os.path.join(paths["LOCAL"]["staged"], "processed"))
+    os.mkdir(os.path.join(paths["LOCAL"]["staged"], "processed", "S0142"))
+    os.mkdir(os.path.join(paths["LOCAL"]["staged"], "final"))
 
-def add_abs_paths(run_conf, paths):
-    need_staged_dirs = False
     for step_name, step_conf in run_conf["steps"].items():
         for io in ["input", "output"]:
-            path_abs = (
-                step_conf.get(io)
-                if step_conf.get(io) not in ["canonical", "staged"]
-                else paths["LOCAL"][step_conf.get(io)]
-            )
-            run_conf["steps"][step_name][f"{io}_abs"] = path_abs
-        if step_conf.get("output") == "staged":
-            need_staged_dirs = True
-    return run_conf, need_staged_dirs
+            path_prefix = step_conf.get(f"{io}_prefix")
+            if path_prefix is None:
+                continue
+            elif path_prefix == "staged":
+                path_prefix_abs = paths["LOCAL"]["staged"]
+            elif path_prefix == "canonical":
+                path_prefix_abs = paths["LOCAL"]["canonical"]
+            else:
+                raise KeyError(
+                    f"{io}_prefix for {step_name} must be 'staged' or 'canonical' rather than {path_prefix}"
+                )
+            run_conf["steps"][step_name][f"{io}_abs"] = path_prefix_abs
+
+    return run_conf
 
 
 def read_conf_and_make_dirs(*args):
     args = parse_args(args)
     paths = conf.read(args.paths)
     run_conf = conf.read(args.run)
-    run_conf, need_staged_dirs = add_abs_paths(run_conf, paths)
-    if need_staged_dirs:
-        create_staged_directories(paths)
+    run_conf = create_staged_dirs_and_set_abs_paths(run_conf, paths)
     return run_conf, paths
 
 

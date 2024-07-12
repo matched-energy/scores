@@ -7,9 +7,6 @@ GRID:
 
 LOCAL:
   canonical:
-    raw: ${MATCHED_DATA}/raw
-    processed: ${MATCHED_DATA}/processed
-    final: ${MATCHED_DATA}/final
+    ${MATCHED_DATA}
   staged:
-    processed: /tmp/scores-data-processed-${DATETIME}
-    final: /tmp/scores-data-final-${DATETIME}
+    /tmp/scores-${DATETIME}

@@ -10,28 +10,33 @@ suppliers:
 steps: 
   ### GRID
   grid_gen_by_tech_by_month:
-    input: canonical 
-    output: staged 
+    # input: 
+    #   ngeso_mix: 
+    #     dir: canonical  
+    #     subdir: raw
+    #     filename: ngeso_mix
+    input_prefix: canonical 
+    output_prefix: staged 
 
   ### SUPPLIER GENERATION
   supplier_gen_by_tech_by_month:
-    input: canonical 
-    output: staged 
+    input_prefix: canonical 
+    output_prefix: staged 
 
   supplier_gen_by_tech_by_half_hour: 
-    input: staged 
-    output: staged 
+    input_prefix: staged 
+    output_prefix: staged 
 
   ### SUPPLIER DEMAND 
   parse_s0142_files: 
-    input: canonical  
-    output: staged
+    input_prefix: canonical  
+    output_prefix: staged
     prefixes: #- S0142_20220402_SF_20220427114051.gz
       - S0142_20220401_SF_20220427115520
 
   supplier_load_by_half_hour:
-    input: canonical 
-    output: staged
+    input_prefix: canonical 
+    output_prefix: staged
     prefixes: 
       - S0142_20220401_SF_20220427115520
       # - S0142_20220402_SF_20220427114051.gz
@@ -39,4 +44,4 @@ steps:
 
   # CALCULATE SCORES
   supplier_scores:
-    input: staged 
+    input_prefix: staged 
