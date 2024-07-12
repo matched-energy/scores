@@ -2,18 +2,18 @@ import os
 import sys
 from pprint import pprint
 
-import scores.grid_monthly_generation
-import scores.s0142.concatenate_days
-import scores.s0142.process_s0142_file
+import scores.grid_gen_by_tech_by_month
+import scores.s0142.parse_s0142_files
+import scores.s0142.supplier_load_by_half_hour
 import scores.supplier_gen_by_tech_by_half_hour
-import scores.supplier_monthly_generation
-import scores.supplier_time_matched_scores
+import scores.supplier_gen_by_tech_by_month
+import scores.supplier_scores
 from scores.configuration import conf
 from scores.workflow.helpers import read_conf_and_make_dirs, run_step
 
 
 def grid_gen_by_tech_by_month(run_conf, step_conf):
-    scores.grid_monthly_generation.main(
+    scores.grid_gen_by_tech_by_month.main(
         os.path.join(step_conf["input_abs"]["raw"], "historic-generation-mix.csv"),
         start=run_conf["start_datetime"],
         end=run_conf["end_datetime"],
@@ -44,7 +44,7 @@ def supplier_gen_by_tech_by_half_hour(run_conf, step_conf, supplier):
 
 
 def supplier_gen_by_tech_by_month(run_conf, step_conf, supplier, paths):
-    return scores.supplier_monthly_generation.main(
+    return scores.supplier_gen_by_tech_by_month.main(
         paths["REGOS"],
         supplier["rego_organisation_name"],
         path_processed_agg_month_tech=os.path.join(
@@ -55,7 +55,7 @@ def supplier_gen_by_tech_by_month(run_conf, step_conf, supplier, paths):
 
 
 def supplier_scores(run_conf, step_conf, supplier):
-    return scores.supplier_time_matched_scores.main(
+    return scores.supplier_scores.main(
         path_supplier_month_tech=os.path.join(
             step_conf["input_abs"]["processed"], f"month-tech-{supplier['file_id']}.csv"
         ),
@@ -82,7 +82,7 @@ def parse_s0142_files(run_conf, step_conf):
         for supplier in conf.read("suppliers.yaml", conf_dir=True)
         if supplier["name"] in run_conf["suppliers"]
     ]
-    scores.s0142.process_s0142_file.main(
+    scores.s0142.parse_s0142_files.main(
         input_dir=os.path.join(step_conf["input_abs"]["raw"], "s0142"),
         output_dir=os.path.join(step_conf["output_abs"]["processed"], "s0142"),
         prefixes=step_conf.get("prefixes"),
@@ -92,7 +92,7 @@ def parse_s0142_files(run_conf, step_conf):
 
 
 def supplier_load_by_half_hour(run_conf, step_conf, supplier):
-    scores.s0142.concatenate_days.main(
+    scores.s0142.supplier_load_by_half_hour.main(
         bsc_lead_party_id=supplier["bsc_party_id"],
         input_dir=os.path.join(step_conf["input_abs"]["processed"], "s0142"),
         output_path=os.path.join(
