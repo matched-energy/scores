@@ -25,7 +25,7 @@ def grid_gen_by_tech_by_month(run_conf, step_conf):
     )
 
 
-def supplier_gen_by_tech_by_month(run_conf, step_conf, supplier, paths):
+def supplier_gen_by_tech_by_month(run_conf, step_conf, supplier):
     return scores.supplier_gen_by_tech_by_month.main(
         path_raw_rego=make_path(step_conf, "input", "path_raw_rego"),
         current_holder_organisation_name=supplier["rego_organisation_name"],
@@ -120,7 +120,7 @@ def process_suppliers(*args):
     ## ... and be explicit about timeranges in filename
     ## ... and have functions that validate data range & completeness
 
-    run_conf, paths = read_conf_and_make_dirs(*args)
+    run_conf = read_conf_and_make_dirs(*args)
 
     run_step(grid_gen_by_tech_by_month, run_conf)
     run_step(parse_s0142_files, run_conf)
@@ -129,7 +129,7 @@ def process_suppliers(*args):
     for supplier in conf.read("suppliers.yaml", conf_dir=True):
         r = {}
         r.update(run_step(supplier_load_by_half_hour, run_conf, supplier))
-        r.update(run_step(supplier_gen_by_tech_by_month, run_conf, supplier, paths))
+        r.update(run_step(supplier_gen_by_tech_by_month, run_conf, supplier))
         r.update(run_step(supplier_gen_by_tech_by_half_hour, run_conf, supplier))
         r.update(run_step(supplier_scores, run_conf, supplier))
         results[supplier["name"]] = r

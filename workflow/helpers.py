@@ -6,9 +6,21 @@ import re
 from scores.configuration import conf
 
 
-def create_staged_dirs_and_set_abs_paths(run_conf, paths):
+def parse_args(args=None):
+    parser = argparse.ArgumentParser(description="Process run configuration.")
+
+    parser.add_argument(
+        "run",
+        type=str,
+        help="Path to YAML file that defines run configuration",
+    )
+
+    return parser.parse_args(args)
+
+
+def create_staged_dirs_and_set_abs_paths(run_conf):
     staged_dir = os.path.join(
-        paths["LOCAL"]["staged"],
+        run_conf["local_dirs"]["staged"],
         f"scores-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
     )
     os.mkdir(staged_dir)
@@ -22,7 +34,7 @@ def create_staged_dirs_and_set_abs_paths(run_conf, paths):
                 if path_conf["root_dir"] == "staged":
                     root_dir_abs = staged_dir
                 elif path_conf["root_dir"] == "canonical":
-                    root_dir_abs = paths["LOCAL"]["canonical"]
+                    root_dir_abs = run_conf["local_dirs"]["canonical"]
                 else:
                     raise KeyError(
                         f"root_dir for {step_name} must be 'staged' or 'canonical' rather than {root_dir}"
@@ -36,28 +48,9 @@ def create_staged_dirs_and_set_abs_paths(run_conf, paths):
 
 def read_conf_and_make_dirs(*args):
     args = parse_args(args)
-    paths = conf.read(args.paths)
     run_conf = conf.read(args.run)
-    run_conf = create_staged_dirs_and_set_abs_paths(run_conf, paths)
-    return run_conf, paths
-
-
-def parse_args(args=None):
-    parser = argparse.ArgumentParser(description="Process run configuration.")
-
-    parser.add_argument(
-        "run",
-        type=str,
-        help="Path to YAML file that defines run configuration",
-    )
-    parser.add_argument(
-        "--paths",
-        type=str,
-        help="Path to YAML file that defines paths",
-        default=os.path.join(conf.DIR, "paths.yaml"),
-    )
-
-    return parser.parse_args(args)
+    run_conf = create_staged_dirs_and_set_abs_paths(run_conf)
+    return run_conf
 
 
 def run_step(f, run_conf, *args):
