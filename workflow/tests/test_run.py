@@ -2,7 +2,7 @@ import os
 
 import pytest
 import scores.configuration.conf as conf
-import scores.workflow.run_supplier_scores
+import scores.workflow.run
 
 
 def test_long_workflow():
@@ -24,7 +24,7 @@ def test_long_workflow():
             "unmatched_volume_hh": 19972.473507835384,
         },
     }
-    results = scores.workflow.run_supplier_scores.process_suppliers(
+    results = scores.workflow.run.process_suppliers(
         os.path.join(conf.DIR, "run_long_test.yaml")
     )
     for supplier_name, metrics in expected.items():
