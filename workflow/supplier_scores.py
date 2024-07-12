@@ -98,7 +98,7 @@ def calculate_scores(step_conf, supplier, paths):
         ),
         path_supplier_hh_load=os.path.join(
             step_conf["input_abs"]["final"],
-            f"{supplier['bsc_lead_party_id']}_load.csv",
+            f"{supplier['bsc_party_id']}_load.csv",
         ),
     )
 
