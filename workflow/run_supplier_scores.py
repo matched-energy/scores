@@ -1,18 +1,18 @@
 import sys
 from pprint import pprint
 
-import scores.grid_gen_by_tech_by_month
+import scores.core.grid_gen_by_tech_by_month
+import scores.core.supplier_gen_by_tech_by_half_hour
+import scores.core.supplier_gen_by_tech_by_month
+import scores.core.supplier_load_by_half_hour
+import scores.core.supplier_scores
 import scores.s0142.parse_s0142_files
-import scores.supplier_gen_by_tech_by_half_hour
-import scores.supplier_gen_by_tech_by_month
-import scores.supplier_load_by_half_hour
-import scores.supplier_scores
 from scores.configuration import conf
 from scores.workflow.helpers import make_path, read_conf_and_make_dirs, run_step
 
 
 def grid_gen_by_tech_by_month(run_conf, step_conf):
-    scores.grid_gen_by_tech_by_month.main(
+    scores.core.grid_gen_by_tech_by_month.main(
         path_historic_generation_mix=make_path(
             step_conf, "input", "path_historic_generation_mix"
         ),
@@ -24,7 +24,7 @@ def grid_gen_by_tech_by_month(run_conf, step_conf):
 
 
 def supplier_gen_by_tech_by_month(run_conf, step_conf, supplier):
-    return scores.supplier_gen_by_tech_by_month.main(
+    return scores.core.supplier_gen_by_tech_by_month.main(
         path_raw_rego=make_path(step_conf, "input", "path_raw_rego"),
         current_holder_organisation_name=supplier["rego_organisation_name"],
         path_processed_agg_month_tech=make_path(
@@ -37,7 +37,7 @@ def supplier_gen_by_tech_by_month(run_conf, step_conf, supplier):
 
 
 def supplier_gen_by_tech_by_half_hour(run_conf, step_conf, supplier):
-    scores.supplier_gen_by_tech_by_half_hour.calculate_supplier_generation(
+    scores.core.supplier_gen_by_tech_by_half_hour.calculate_supplier_generation(
         path_supplier_month_tech=make_path(
             step_conf,
             "input",
@@ -56,7 +56,7 @@ def supplier_gen_by_tech_by_half_hour(run_conf, step_conf, supplier):
 
 
 def supplier_scores(run_conf, step_conf, supplier):
-    return scores.supplier_scores.main(
+    return scores.core.supplier_scores.main(
         path_supplier_month_tech=make_path(
             step_conf,
             "input",
@@ -98,7 +98,7 @@ def parse_s0142_files(run_conf, step_conf):
 
 
 def supplier_load_by_half_hour(run_conf, step_conf, supplier):
-    scores.supplier_load_by_half_hour.main(
+    scores.core.supplier_load_by_half_hour.main(
         bsc_lead_party_id=supplier["bsc_party_id"],
         input_dir=make_path(step_conf, "input", "input_dir"),
         output_path=make_path(
