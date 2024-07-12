@@ -1,6 +1,7 @@
 import argparse
 import os
 from pprint import pprint
+import sys
 
 import scores.grid_monthly_generation
 import scores.s0142.concatenate_days
@@ -131,7 +132,7 @@ def concatenate_days(step_conf, supplier):
     return {}
 
 
-def parse_args():
+def parse_args(args=None):
     parser = argparse.ArgumentParser(description="Process run configuration.")
 
     parser.add_argument(
@@ -145,16 +146,16 @@ def parse_args():
         help="Path to YAML file that defines paths",
     )
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
-def process_suppliers():
+def process_suppliers(*args):
     ## Where does year belong? Needs apply to regos and grid.
     ## ^   should handle in pre-processing
     ## ... and be explicit about timeranges in filename
     ## ... and have functions that validate data range & completeness
 
-    args = parse_args()
+    args = parse_args(args)
 
     run_conf = conf.read(args.run)
     paths = (
@@ -191,4 +192,4 @@ def process_suppliers():
 
 
 if __name__ == "__main__":
-    process_suppliers()
+    process_suppliers(*sys.argv[1:])

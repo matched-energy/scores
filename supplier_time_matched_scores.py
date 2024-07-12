@@ -5,6 +5,7 @@ import sys
 
 import pandas as pd
 import plotly.graph_objects as go
+
 import scores.configuration.conf as conf
 import scores.plot_supplier_gen_load
 
@@ -14,6 +15,7 @@ CONF_DIR = os.path.join(  # TODO
 
 
 def calc_scores(hh_generation, hh_load):
+    ## TODO - assert timeseries are aligned
     TECH = conf.read(f"{CONF_DIR}/generation.yaml")["TECH"]  # TODO
     hh_generation["TOTAL"] = hh_generation[[f"{tech}_supplier" for tech in TECH]].sum(
         axis=1
