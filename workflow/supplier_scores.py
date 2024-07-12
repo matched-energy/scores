@@ -103,23 +103,28 @@ def calculate_scores(step_conf, supplier, paths):
     )
 
 
-def process_s0142_files(step_conf):
+def process_s0142_files(run_conf, step_conf):
+    bsc_party_ids = [
+        supplier["bsc_party_id"]
+        for supplier in conf.read(f"{CONF_DIR}/suppliers.yaml")
+        if supplier["name"] in run_conf["suppliers"]
+    ]
     scores.s0142.process_s0142_file.main(
         input_dir=os.path.join(step_conf["input_abs"]["raw"], "S0142"),
         output_dir=os.path.join(step_conf["output_abs"]["processed"], "S0142"),
         input_filenames=step_conf.get("filenames"),
-        bsc_party_ids=step_conf.get("bsc_party_ids"),
+        bsc_party_ids=bsc_party_ids,
     )
     return {}
 
 
 def concatenate_days(step_conf, supplier):
     scores.s0142.concatenate_days.main(
-        bsc_lead_party_id=supplier["bsc_lead_party_id"],
+        bsc_lead_party_id=supplier["bsc_party_id"],
         input_dir=os.path.join(step_conf["input_abs"]["processed"], "S0142"),
         output_path=os.path.join(
             step_conf["output_abs"]["final"],
-            f"{supplier['bsc_lead_party_id']}_load.csv",
+            f"{supplier['bsc_party_id']}_load.csv",
         ),
         prefixes=step_conf.get("prefix"),
     )
@@ -165,7 +170,7 @@ def process_suppliers():
         grid_gen_by_tech_month(paths, run_conf, step_conf)
 
     if step_conf := run_conf["steps"].get("process_s0142_files"):
-        process_s0142_files(step_conf)
+        process_s0142_files(run_conf, step_conf)
 
     results = {}
     for supplier in conf.read(f"{CONF_DIR}/suppliers.yaml"):

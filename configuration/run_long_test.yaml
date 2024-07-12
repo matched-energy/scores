@@ -3,6 +3,10 @@ start_datetime:
 end_datetime: 
   2023-04-01T00:00:00Z
 
+suppliers: 
+  - Good Energy 
+  - Octopus 
+
 steps: 
   ### GRID
   grid_gen_by_tech_by_month:
@@ -24,9 +28,6 @@ steps:
     output: staged
     filenames: # TODO prefixes  #- S0142_20220402_SF_20220427114051.gz
       - S0142_20220401_SF_20220427115520.gz 
-    bsc_party_ids: 
-      - MERCURY
-      - PURE
 
   concatenate_days:  # supplier_demand_by_half_hour
     input: staged 
