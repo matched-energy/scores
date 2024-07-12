@@ -1,13 +1,10 @@
 import os
 
 import pandas as pd
+
 import scores.configuration.conf as conf
 
-CONF_DIR = os.path.join(  # TODO
-    os.path.dirname(os.path.abspath(__file__)), "configuration"
-)
-
-TECH = conf.read(f"{CONF_DIR}/generation.yaml")["TECH"]  # TODO
+TECH = conf.read("generation.yaml", conf_dir=True)["TECH"]  # TODO
 
 
 def calculate_supplier_generation(

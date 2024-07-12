@@ -11,10 +11,6 @@ import scores.supplier_monthly_generation
 import scores.supplier_time_matched_scores
 from scores.configuration import conf
 
-CONF_DIR = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "..", "configuration"
-)
-
 
 def create_staged_directories(paths):
     os.mkdir(paths["LOCAL"]["staged"]["processed"])
@@ -107,7 +103,7 @@ def calculate_scores(step_conf, supplier, paths):
 def process_s0142_files(run_conf, step_conf):
     bsc_party_ids = [
         supplier["bsc_party_id"]
-        for supplier in conf.read(f"{CONF_DIR}/suppliers.yaml")
+        for supplier in conf.read("suppliers.yaml", conf_dir=True)
         if supplier["name"] in run_conf["suppliers"]
     ]
     scores.s0142.process_s0142_file.main(
@@ -159,7 +155,7 @@ def process_suppliers(*args):
 
     run_conf = conf.read(args.run)
     paths = (
-        conf.read(f"{CONF_DIR}/paths.yaml")
+        conf.read("paths.yaml", conf_dir=True)
         if args.paths is None
         else conf.read(args.paths)
     )
@@ -174,7 +170,7 @@ def process_suppliers(*args):
         process_s0142_files(run_conf, step_conf)
 
     results = {}
-    for supplier in conf.read(f"{CONF_DIR}/suppliers.yaml"):
+for supplier in conf.read("suppliers.yaml", conf_dir=True):
         supplier_results = {}
         if step_conf := run_conf["steps"].get("concatenate_days"):
             supplier_results.update(concatenate_days(step_conf, supplier))

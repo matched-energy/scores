@@ -1,12 +1,8 @@
 import os
 
 import pytest
-
+import scores.configuration.conf as conf
 import scores.workflow.supplier_scores as workflow_supplier_scores
-
-CONF_DIR = os.path.join(  # TODO
-    os.path.dirname(os.path.abspath(__file__)), "../../", "configuration"
-)
 
 
 def test_long_workflow():
@@ -29,7 +25,7 @@ def test_long_workflow():
         },
     }
     results = workflow_supplier_scores.process_suppliers(
-        f"{CONF_DIR}/run_long_test.yaml",
+        os.path.join(conf.DIR, "run_long_test.yaml")
     )
     for supplier_name, metrics in expected.items():
         for metric_key, value in metrics.items():
