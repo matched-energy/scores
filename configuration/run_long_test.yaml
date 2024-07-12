@@ -26,8 +26,8 @@ steps:
   parse_s0142_files: 
     input: canonical  
     output: staged
-    filenames: # TODO prefixes  #- S0142_20220402_SF_20220427114051.gz
-      - S0142_20220401_SF_20220427115520.gz 
+    prefixes: #- S0142_20220402_SF_20220427114051.gz
+      - S0142_20220401_SF_20220427115520
 
   supplier_load_by_half_hour:
     input: canonical 

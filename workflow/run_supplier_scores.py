@@ -85,7 +85,7 @@ def parse_s0142_files(run_conf, step_conf):
     scores.s0142.process_s0142_file.main(
         input_dir=os.path.join(step_conf["input_abs"]["raw"], "s0142"),
         output_dir=os.path.join(step_conf["output_abs"]["processed"], "s0142"),
-        input_filenames=step_conf.get("filenames"),
+        prefixes=step_conf.get("prefixes"),
         bsc_party_ids=bsc_party_ids,
     )
     return {}

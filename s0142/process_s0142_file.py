@@ -170,14 +170,14 @@ def process_file(input_path, bsc_party_ids):
             yield bsc, calculate_half_hourly_load(df_final)
 
 
-def main(input_dir, output_dir, bsc_party_ids, input_filenames=None):
+def main(input_dir, output_dir, bsc_party_ids, prefixes=None):
     filenames = sorted(
         [
             filename
             for filename in os.listdir(input_dir)
             if filename.startswith("S0142")
             and filename.endswith(".gz")
-            and (input_filenames is None or filename in input_filenames)
+            and (prefixes is None or any(filename.startswith(p) for p in prefixes))
         ]
     )
     for filename in filenames:
