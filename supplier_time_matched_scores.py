@@ -1,17 +1,20 @@
 import collections
+import os
 import pprint
 import sys
 
 import pandas as pd
 import plotly.graph_objects as go
+import scores.configuration.conf as conf
 import scores.plot_supplier_gen_load
 
-pd.set_option("display.max_columns", 1000)
-
-TECH = ["BIOMASS", "HYDRO", "OTHER", "WIND", "SOLAR"]
+CONF_DIR = os.path.join(  # TODO
+    os.path.dirname(os.path.abspath(__file__)), "configuration"
+)
 
 
 def calc_scores(hh_generation, hh_load):
+    TECH = conf.read(f"{CONF_DIR}/generation.yaml")["TECH"]  # TODO
     hh_generation["TOTAL"] = hh_generation[[f"{tech}_supplier" for tech in TECH]].sum(
         axis=1
     )
@@ -38,38 +41,6 @@ def calc_scores(hh_generation, hh_load):
     return scores
 
 
-def calculate_supplier_generation(
-    path_supplier_month_tech, path_grid_month_tech, path_grid_hh_generation
-):
-    supplier_month_tech = pd.read_csv(path_supplier_month_tech)
-    grid_month_tech = pd.read_csv(path_grid_month_tech)
-
-    supplier_month_tech["Output Month"] = pd.to_datetime(
-        supplier_month_tech["Output Month"]
-    )
-    grid_month_tech["month"] = pd.to_datetime(grid_month_tech["month"])
-
-    supplier_month_tech.set_index("Output Month", inplace=True)
-    grid_month_tech.set_index("month", inplace=True)
-    supplier_month_tech_scale = supplier_month_tech / grid_month_tech
-
-    hh_generation = pd.read_csv(path_grid_hh_generation)
-    hh_generation["DATETIME"] = pd.to_datetime(hh_generation["DATETIME"])
-    hh_generation["date"] = (
-        hh_generation["DATETIME"].dt.to_period("M").dt.to_timestamp()
-    )
-
-    for tech in TECH:
-        hh_generation[f"{tech}_scale"] = supplier_month_tech_scale.loc[
-            hh_generation["date"], tech
-        ].values
-        hh_generation[f"{tech}_supplier"] = (  ## now in MWh!!
-            hh_generation[f"{tech}_scale"] * hh_generation[tech] / 2
-        )
-
-    return hh_generation[["DATETIME"] + [f"{tech}_supplier" for tech in TECH]]
-
-
 def get_supplier_load(path_supplier_hh_load):
     hh_load = pd.read_csv(path_supplier_hh_load)
     hh_load["Settlement Datetime"] = pd.to_datetime(hh_load["Settlement Datetime"])
@@ -80,11 +51,10 @@ def main(
     path_supplier_month_tech,
     path_grid_month_tech,
     path_grid_hh_generation,
+    path_supplier_gen_by_tech_by_half_hour,
     path_supplier_hh_load,
 ):
-    hh_generation = calculate_supplier_generation(
-        path_supplier_month_tech, path_grid_month_tech, path_grid_hh_generation
-    )
+    hh_generation = pd.read_csv(path_supplier_gen_by_tech_by_half_hour)
     hh_load = get_supplier_load(path_supplier_hh_load)
 
     scores.plot_supplier_gen_load.plot(hh_generation, hh_load)

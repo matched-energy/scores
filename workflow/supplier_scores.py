@@ -5,6 +5,7 @@ from pprint import pprint
 import scores.grid_monthly_generation
 import scores.s0142.concatenate_days
 import scores.s0142.process_s0142_file
+import scores.supplier_gen_by_tech_by_half_hour
 import scores.supplier_monthly_generation
 import scores.supplier_time_matched_scores
 from scores.configuration import conf
@@ -50,11 +51,23 @@ def grid_gen_by_tech_month(paths, run_conf, step_conf):
     )
 
 
-def extract_regos(step_conf, supplier, paths):
-    return scores.supplier_monthly_generation.main(
-        paths["REGOS"],
-        path_grid_month_tech=paths["GRID"]["volumes_by_tech_by_month"],
+def supplier_gen_by_tech_by_half_hour(step_conf, supplier):
+    scores.supplier_gen_by_tech_by_half_hour.calculate_supplier_generation(
+        path_supplier_month_tech=os.path.join(
+            step_conf["input_abs"]["processed"], f"month-tech-{supplier['file_id']}.csv"
+        ),
+        path_grid_month_tech=os.path.join(
+            step_conf["input_abs"]["processed"], "grid-month-tech.csv"
+        ),
+        path_grid_hh_generation=os.path.join(
+            step_conf["input_abs"]["processed"], "grid_hh.csv"
+        ),
+        output_path=os.path.join(
+            step_conf["output_abs"]["final"],
+            f"{supplier['file_id']}_gen_by_tech_by_half_hour.csv",
+        ),
     )
+    return {}
 
 
 def extract_regos(step_conf, supplier, paths):
@@ -78,6 +91,10 @@ def calculate_scores(step_conf, supplier, paths):
         ),
         path_grid_hh_generation=os.path.join(
             step_conf["input_abs"]["processed"], "grid_hh.csv"
+        ),
+        path_supplier_gen_by_tech_by_half_hour=os.path.join(
+            step_conf["input_abs"]["final"],
+            f"{supplier['file_id']}_gen_by_tech_by_half_hour.csv",
         ),
         path_supplier_hh_load=os.path.join(
             step_conf["input_abs"]["final"],
@@ -157,6 +174,10 @@ def process_suppliers():
             supplier_results.update(concatenate_days(step_conf, supplier))
         if step_conf := run_conf["steps"].get("extract_regos"):
             supplier_results.update(extract_regos(step_conf, supplier, paths))
+        if step_conf := run_conf["steps"].get("supplier_gen_by_tech_by_half_hour"):
+            supplier_results.update(
+                supplier_gen_by_tech_by_half_hour(step_conf, supplier)
+            )
         if step_conf := run_conf["steps"].get("calculate_scores"):
             supplier_results.update(calculate_scores(step_conf, supplier, paths))
         results[supplier["name"]] = supplier_results

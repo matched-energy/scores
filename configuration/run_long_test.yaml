@@ -14,11 +14,11 @@ steps:
     input: canonical 
     output: staged 
 
-  supplier_volume_by_tech_by_half_hour: # supplier_gen_by_tech_half_hour
+  supplier_gen_by_tech_by_half_hour: 
     input: staged 
     output: staged 
 
-  ### SUPPLIER DEMAND 
+  # SUPPLIER DEMAND 
   process_s0142_files: # parse_s0142_files
     input: canonical  
     output: staged
@@ -35,6 +35,6 @@ steps:
       - S0142_20220401_SF_20220427115520
       - S0142_20220402_SF_20220427114051.gz
 
-  ### CALCULATE SCORES
+  # CALCULATE SCORES
   calculate_scores:
     input: staged 
