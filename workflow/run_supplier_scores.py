@@ -9,7 +9,7 @@ import scores.supplier_gen_by_tech_by_half_hour
 import scores.supplier_monthly_generation
 import scores.supplier_time_matched_scores
 from scores.configuration import conf
-from scores.workflow.helpers import parse_args, read_conf_and_make_dirs, run_step
+from scores.workflow.helpers import read_conf_and_make_dirs, run_step
 
 
 def grid_gen_by_tech_by_month(run_conf, step_conf):
@@ -43,7 +43,7 @@ def supplier_gen_by_tech_by_half_hour(run_conf, step_conf, supplier):
     return {}
 
 
-def extract_regos(run_conf, step_conf, supplier, paths):
+def supplier_gen_by_tech_by_month(run_conf, step_conf, supplier, paths):
     return scores.supplier_monthly_generation.main(
         paths["REGOS"],
         supplier["rego_organisation_name"],
@@ -54,7 +54,7 @@ def extract_regos(run_conf, step_conf, supplier, paths):
     )
 
 
-def calculate_scores(run_conf, step_conf, supplier):
+def supplier_scores(run_conf, step_conf, supplier):
     return scores.supplier_time_matched_scores.main(
         path_supplier_month_tech=os.path.join(
             step_conf["input_abs"]["processed"], f"month-tech-{supplier['file_id']}.csv"
@@ -76,10 +76,10 @@ def calculate_scores(run_conf, step_conf, supplier):
     )
 
 
-def process_s0142_files(run_conf, step_conf):
+def parse_s0142_files(run_conf, step_conf):
     bsc_party_ids = [
         supplier["bsc_party_id"]
-        for supplier in conf.read("suppliers.yaml", conf_dir=true)
+        for supplier in conf.read("suppliers.yaml", conf_dir=True)
         if supplier["name"] in run_conf["suppliers"]
     ]
     scores.s0142.process_s0142_file.main(
@@ -91,7 +91,7 @@ def process_s0142_files(run_conf, step_conf):
     return {}
 
 
-def concatenate_days(run_conf, step_conf, supplier):
+def supplier_load_by_half_hour(run_conf, step_conf, supplier):
     scores.s0142.concatenate_days.main(
         bsc_lead_party_id=supplier["bsc_party_id"],
         input_dir=os.path.join(step_conf["input_abs"]["processed"], "s0142"),
@@ -113,15 +113,15 @@ def process_suppliers(*args):
     run_conf, paths = read_conf_and_make_dirs(*args)
 
     run_step(grid_gen_by_tech_by_month, run_conf)
-    run_step(process_s0142_files, run_conf)
+    run_step(parse_s0142_files, run_conf)
 
     results = {}
     for supplier in conf.read("suppliers.yaml", conf_dir=True):
         r = {}
-        r.update(run_step(concatenate_days, run_conf, supplier))
-        r.update(run_step(extract_regos, run_conf, supplier, paths))
+        r.update(run_step(supplier_load_by_half_hour, run_conf, supplier))
+        r.update(run_step(supplier_gen_by_tech_by_month, run_conf, supplier, paths))
         r.update(run_step(supplier_gen_by_tech_by_half_hour, run_conf, supplier))
-        r.update(run_step(calculate_scores, run_conf, supplier))
+        r.update(run_step(supplier_scores, run_conf, supplier))
         results[supplier["name"]] = r
     pprint(results)
     return results

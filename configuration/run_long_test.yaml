@@ -14,7 +14,7 @@ steps:
     output: staged 
 
   ### SUPPLIER GENERATION
-  extract_regos:  # supplier_gen_by_tech_by_month
+  supplier_gen_by_tech_by_month:
     input: canonical 
     output: staged 
 
@@ -22,20 +22,21 @@ steps:
     input: staged 
     output: staged 
 
-  # SUPPLIER DEMAND 
-  process_s0142_files: # parse_s0142_files
+  ### SUPPLIER DEMAND 
+  parse_s0142_files: 
     input: canonical  
     output: staged
     filenames: # TODO prefixes  #- S0142_20220402_SF_20220427114051.gz
       - S0142_20220401_SF_20220427115520.gz 
 
-  concatenate_days:  # supplier_demand_by_half_hour
-    input: staged 
+  supplier_load_by_half_hour:
+    input: canonical 
     output: staged
     prefixes: 
       - S0142_20220401_SF_20220427115520
-      - S0142_20220402_SF_20220427114051.gz
+      # - S0142_20220402_SF_20220427114051.gz
+      
 
   # CALCULATE SCORES
-  calculate_scores:
+  supplier_scores:
     input: staged 
