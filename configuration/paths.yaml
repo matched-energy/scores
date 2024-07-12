@@ -1,8 +1,9 @@
 REGOS: ${MATCHED_DATA}/raw/regos-apr2022-mar2023.csv 
 
 GRID: 
+  ngeso_historic_gen: ${MATCHED_DATA}/raw/historic-generation-mix.csv
   volumes_by_tech_by_month: ${MATCHED_DATA}/processed/grid-month-tech.csv 
-  volumes_by_tech_by_half_hour: ${MATCHED_DATA}/processed/grid_hh.csv  
+  volumes_by_tech_by_half_hour:  ${MATCHED_DATA}/processed/historic-generation-mix.csv
 
 LOCAL:
   canonical:

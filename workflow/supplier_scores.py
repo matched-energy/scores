@@ -2,6 +2,7 @@ import argparse
 import os
 from pprint import pprint
 
+import scores.grid_monthly_generation
 import scores.s0142.concatenate_days
 import scores.s0142.process_s0142_file
 import scores.supplier_monthly_generation
@@ -21,6 +22,7 @@ def create_staged_directories(paths):
 
 def setup(run_conf, paths):
     created_staged_directories = False
+
     for step_name, step_conf in run_conf["steps"].items():
         for io in ["input", "output"]:
             path_abs = (
@@ -34,6 +36,25 @@ def setup(run_conf, paths):
             created_staged_directories = True
 
     return run_conf
+
+
+def grid_gen_by_tech_month(paths, run_conf, step_conf):
+    scores.grid_monthly_generation.main(
+        os.path.join(step_conf["input_abs"]["raw"], "historic-generation-mix.csv"),
+        start=run_conf["start_datetime"],
+        end=run_conf["end_datetime"],
+        path_grid_hh=os.path.join(step_conf["output_abs"]["processed"], "grid_hh.csv"),
+        path_grid_month_tech=os.path.join(
+            step_conf["output_abs"]["processed"], "grid-month-tech.csv"
+        ),
+    )
+
+
+def extract_regos(step_conf, supplier, paths):
+    return scores.supplier_monthly_generation.main(
+        paths["REGOS"],
+        path_grid_month_tech=paths["GRID"]["volumes_by_tech_by_month"],
+    )
 
 
 def extract_regos(step_conf, supplier, paths):
@@ -52,8 +73,12 @@ def calculate_scores(step_conf, supplier, paths):
         path_supplier_month_tech=os.path.join(
             step_conf["input_abs"]["processed"], f"month-tech-{supplier['file_id']}.csv"
         ),
-        path_grid_month_tech=paths["GRID"]["volumes_by_tech_by_month"],
-        path_grid_hh_generation=paths["GRID"]["volumes_by_tech_by_half_hour"],
+        path_grid_month_tech=os.path.join(
+            step_conf["input_abs"]["processed"], "grid-month-tech.csv"
+        ),
+        path_grid_hh_generation=os.path.join(
+            step_conf["input_abs"]["processed"], "grid_hh.csv"
+        ),
         path_supplier_hh_load=os.path.join(
             step_conf["input_abs"]["final"],
             f"{supplier['bsc_lead_party_id']}_load.csv",
@@ -63,12 +88,11 @@ def calculate_scores(step_conf, supplier, paths):
 
 def process_s0142_files(step_conf):
     scores.s0142.process_s0142_file.main(
-        input_dir=os.path.join(step_conf["input_abs"], "S0142"),
-        output_dir=os.path.join(step_conf["output_abs"], "S0142"),
+        input_dir=os.path.join(step_conf["input_abs"]["raw"], "S0142"),
+        output_dir=os.path.join(step_conf["output_abs"]["processed"], "S0142"),
         input_filenames=step_conf.get("filenames"),
         bsc_party_ids=step_conf.get("bsc_party_ids"),
     )
-
     return {}
 
 
@@ -119,6 +143,9 @@ def process_suppliers():
 
     run_conf = setup(run_conf, paths)
     print(run_conf)
+
+    if step_conf := run_conf["steps"].get("grid_gen_by_tech_by_month"):
+        grid_gen_by_tech_month(paths, run_conf, step_conf)
 
     if step_conf := run_conf["steps"].get("process_s0142_files"):
         process_s0142_files(step_conf)
