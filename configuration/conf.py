@@ -1,4 +1,3 @@
-import datetime
 import os
 import re
 
@@ -12,18 +11,11 @@ def get_vars(text):
 
 
 def substitute_vars(text):
-    now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     for var in get_vars(text):
         try:
-            if var == "DATETIME":
-                replacement = now
-            else:
-                replacement = os.environ[var]
-            text = text.replace(f"${{{var}}}", replacement)
+            text = text.replace(f"${{{var}}}", os.environ[var])
         except KeyError:
-            raise KeyError(
-                f"Don't recognise {var}: need environment variable or 'DATETIME'"
-            )
+            raise KeyError(f"Enviroment variable {var} not set")
     return text
 
 

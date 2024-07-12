@@ -1,15 +1,19 @@
 import argparse
+import datetime
 import os
 
 from scores.configuration import conf
 
 
 def create_staged_dirs_and_set_abs_paths(run_conf, paths):
-
-    os.mkdir(paths["LOCAL"]["staged"])
-    os.mkdir(os.path.join(paths["LOCAL"]["staged"], "processed"))
-    os.mkdir(os.path.join(paths["LOCAL"]["staged"], "processed", "S0142"))
-    os.mkdir(os.path.join(paths["LOCAL"]["staged"], "final"))
+    staged_dir = os.path.join(
+        paths["LOCAL"]["staged"],
+        f"scores-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+    )
+    os.mkdir(staged_dir)
+    os.mkdir(os.path.join(staged_dir, "processed"))
+    os.mkdir(os.path.join(staged_dir, "processed", "S0142"))
+    os.mkdir(os.path.join(staged_dir, "final"))
 
     for step_name, step_conf in run_conf["steps"].items():
         for io in ["input", "output"]:
@@ -17,7 +21,7 @@ def create_staged_dirs_and_set_abs_paths(run_conf, paths):
             if path_prefix is None:
                 continue
             elif path_prefix == "staged":
-                path_prefix_abs = paths["LOCAL"]["staged"]
+                path_prefix_abs = staged_dir
             elif path_prefix == "canonical":
                 path_prefix_abs = paths["LOCAL"]["canonical"]
             else:

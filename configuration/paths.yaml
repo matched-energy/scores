@@ -9,4 +9,4 @@ LOCAL:
   canonical:
     ${MATCHED_DATA}
   staged:
-    /tmp/scores-${DATETIME}
+    /tmp/
