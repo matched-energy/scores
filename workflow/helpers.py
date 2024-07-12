@@ -36,9 +36,7 @@ def create_staged_dirs_and_set_abs_paths(run_conf):
                 elif path_conf["root_dir"] == "canonical":
                     root_dir_abs = run_conf["local_dirs"]["canonical"]
                 else:
-                    raise KeyError(
-                        f"root_dir for {step_name} must be 'staged' or 'canonical' rather than {root_dir}"
-                    )
+                    root_dir_abs = path_conf["root_dir"]
                 run_conf["steps"][step_name][f"{io}"][key][
                     "root_dir_abs"
                 ] = root_dir_abs
