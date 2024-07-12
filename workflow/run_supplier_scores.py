@@ -1,13 +1,11 @@
-import os
-import re
 import sys
 from pprint import pprint
 
 import scores.grid_gen_by_tech_by_month
 import scores.s0142.parse_s0142_files
-import scores.s0142.supplier_load_by_half_hour
 import scores.supplier_gen_by_tech_by_half_hour
 import scores.supplier_gen_by_tech_by_month
+import scores.supplier_load_by_half_hour
 import scores.supplier_scores
 from scores.configuration import conf
 from scores.workflow.helpers import make_path, read_conf_and_make_dirs, run_step
@@ -100,7 +98,7 @@ def parse_s0142_files(run_conf, step_conf):
 
 
 def supplier_load_by_half_hour(run_conf, step_conf, supplier):
-    scores.s0142.supplier_load_by_half_hour.main(
+    scores.supplier_load_by_half_hour.main(
         bsc_lead_party_id=supplier["bsc_party_id"],
         input_dir=make_path(step_conf, "input", "input_dir"),
         output_path=make_path(
