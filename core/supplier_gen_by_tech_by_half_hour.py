@@ -1,10 +1,6 @@
-import os
-
 import pandas as pd
 
 import scores.configuration.conf as conf
-
-TECH = conf.read("generation.yaml", conf_dir=True)["TECH"]  # TODO
 
 
 def calculate_supplier_generation(
@@ -31,7 +27,9 @@ def calculate_supplier_generation(
         hh_generation["DATETIME"].dt.to_period("M").dt.to_timestamp()
     )
 
-    for tech in TECH:
+    tech_categories = conf.read("generation.yaml", conf_dir=True)["TECH"]
+
+    for tech in tech_categories:
         hh_generation[f"{tech}_scale"] = supplier_month_tech_scale.loc[
             hh_generation["date"], tech
         ].values
@@ -39,7 +37,7 @@ def calculate_supplier_generation(
             hh_generation[f"{tech}_scale"] * hh_generation[tech] / 2
         )
 
-    df = hh_generation[["DATETIME"] + [f"{tech}_supplier" for tech in TECH]]
+    df = hh_generation[["DATETIME"] + [f"{tech}_supplier" for tech in tech_categories]]
     if output_path:
         df.to_csv(output_path, index=False)
     return df
