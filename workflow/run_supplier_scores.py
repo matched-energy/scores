@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from pprint import pprint
 
@@ -9,73 +10,76 @@ import scores.supplier_gen_by_tech_by_half_hour
 import scores.supplier_gen_by_tech_by_month
 import scores.supplier_scores
 from scores.configuration import conf
-from scores.workflow.helpers import read_conf_and_make_dirs, run_step
+from scores.workflow.helpers import make_path, read_conf_and_make_dirs, run_step
 
 
 def grid_gen_by_tech_by_month(run_conf, step_conf):
     scores.grid_gen_by_tech_by_month.main(
-        os.path.join(step_conf["input_abs"], "raw", "historic-generation-mix.csv"),
+        path_historic_generation_mix=make_path(
+            step_conf, "input", "path_historic_generation_mix"
+        ),
+        path_grid_hh=make_path(step_conf, "output", "path_grid_hh"),
+        path_grid_month_tech=make_path(step_conf, "output", "path_grid_month_tech"),
         start=run_conf["start_datetime"],
         end=run_conf["end_datetime"],
-        path_grid_hh=os.path.join(step_conf["output_abs"], "processed", "grid_hh.csv"),
-        path_grid_month_tech=os.path.join(
-            step_conf["output_abs"], "processed", "grid-month-tech.csv"
+    )
+
+
+def supplier_gen_by_tech_by_month(run_conf, step_conf, supplier, paths):
+    return scores.supplier_gen_by_tech_by_month.main(
+        path_raw_rego=make_path(step_conf, "input", "path_raw_rego"),
+        current_holder_organisation_name=supplier["rego_organisation_name"],
+        path_processed_agg_month_tech=make_path(
+            step_conf,
+            "output",
+            "path_processed_agg_month_tech",
+            dict(SUPPLIER=supplier["file_id"]),
         ),
     )
 
 
 def supplier_gen_by_tech_by_half_hour(run_conf, step_conf, supplier):
     scores.supplier_gen_by_tech_by_half_hour.calculate_supplier_generation(
-        path_supplier_month_tech=os.path.join(
-            step_conf["input_abs"], "processed", f"month-tech-{supplier['file_id']}.csv"
+        path_supplier_month_tech=make_path(
+            step_conf,
+            "input",
+            "path_supplier_month_tech",
+            dict(SUPPLIER=supplier["file_id"]),
         ),
-        path_grid_month_tech=os.path.join(
-            step_conf["input_abs"], "processed", "grid-month-tech.csv"
+        path_grid_month_tech=make_path(step_conf, "input", "path_grid_month_tech"),
+        path_grid_hh_generation=make_path(
+            step_conf, "input", "path_grid_hh_generation"
         ),
-        path_grid_hh_generation=os.path.join(
-            step_conf["input_abs"], "processed", "grid_hh.csv"
-        ),
-        output_path=os.path.join(
-            step_conf["output_abs"],
-            "final",
-            f"{supplier['file_id']}_gen_by_tech_by_half_hour.csv",
+        output_path=make_path(
+            step_conf, "output", "output_path", subs=dict(SUPPLIER=supplier["file_id"])
         ),
     )
     return {}
 
 
-def supplier_gen_by_tech_by_month(run_conf, step_conf, supplier, paths):
-    return scores.supplier_gen_by_tech_by_month.main(
-        paths["REGOS"],
-        supplier["rego_organisation_name"],
-        path_processed_agg_month_tech=os.path.join(
-            step_conf["output_abs"],
-            "processed",
-            f"month-tech-{supplier['file_id']}.csv",
-        ),
-    )
-
-
 def supplier_scores(run_conf, step_conf, supplier):
     return scores.supplier_scores.main(
-        path_supplier_month_tech=os.path.join(
-            step_conf["input_abs"], "processed", f"month-tech-{supplier['file_id']}.csv"
+        path_supplier_month_tech=make_path(
+            step_conf,
+            "input",
+            "path_supplier_month_tech",
+            dict(SUPPLIER=supplier["file_id"]),
         ),
-        path_grid_month_tech=os.path.join(
-            step_conf["input_abs"], "processed", "grid-month-tech.csv"
+        path_grid_month_tech=make_path(step_conf, "input", "path_grid_month_tech"),
+        path_grid_hh_generation=make_path(
+            step_conf, "input", "path_grid_hh_generation"
         ),
-        path_grid_hh_generation=os.path.join(
-            step_conf["input_abs"], "processed", "grid_hh.csv"
+        path_supplier_gen_by_tech_by_half_hour=make_path(
+            step_conf,
+            "input",
+            "path_supplier_gen_by_tech_by_half_hour",
+            dict(SUPPLIER=supplier["file_id"]),
         ),
-        path_supplier_gen_by_tech_by_half_hour=os.path.join(
-            step_conf["input_abs"],
-            "final",
-            f"{supplier['file_id']}_gen_by_tech_by_half_hour.csv",
-        ),
-        path_supplier_hh_load=os.path.join(
-            step_conf["input_abs"],
-            "final",
-            f"{supplier['bsc_party_id']}_load.csv",
+        path_supplier_hh_load=make_path(
+            step_conf,
+            "input",
+            "path_supplier_hh_load",
+            dict(BSC_PARTY_ID=supplier["bsc_party_id"]),
         ),
     )
 
@@ -87,8 +91,8 @@ def parse_s0142_files(run_conf, step_conf):
         if supplier["name"] in run_conf["suppliers"]
     ]
     scores.s0142.parse_s0142_files.main(
-        input_dir=os.path.join(step_conf["input_abs"], "raw", "s0142"),
-        output_dir=os.path.join(step_conf["output_abs"], "processed", "s0142"),
+        input_dir=make_path(step_conf, "input", "input_dir"),
+        output_dir=make_path(step_conf, "output", "output_dir"),
         prefixes=step_conf.get("prefixes"),
         bsc_party_ids=bsc_party_ids,
     )
@@ -98,11 +102,12 @@ def parse_s0142_files(run_conf, step_conf):
 def supplier_load_by_half_hour(run_conf, step_conf, supplier):
     scores.s0142.supplier_load_by_half_hour.main(
         bsc_lead_party_id=supplier["bsc_party_id"],
-        input_dir=os.path.join(step_conf["input_abs"], "processed", "s0142"),
-        output_path=os.path.join(
-            step_conf["output_abs"],
-            "final",
-            f"{supplier['bsc_party_id']}_load.csv",
+        input_dir=make_path(step_conf, "input", "input_dir"),
+        output_path=make_path(
+            step_conf,
+            "output",
+            "output_path",
+            dict(BSC_PARTY_ID=supplier["bsc_party_id"]),
         ),
         prefixes=step_conf.get("prefixes"),
     )

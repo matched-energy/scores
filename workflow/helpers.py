@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+import re
 
 from scores.configuration import conf
 
@@ -17,18 +18,18 @@ def create_staged_dirs_and_set_abs_paths(run_conf, paths):
 
     for step_name, step_conf in run_conf["steps"].items():
         for io in ["input", "output"]:
-            path_prefix = step_conf.get(f"{io}_prefix")
-            if path_prefix is None:
-                continue
-            elif path_prefix == "staged":
-                path_prefix_abs = staged_dir
-            elif path_prefix == "canonical":
-                path_prefix_abs = paths["LOCAL"]["canonical"]
-            else:
-                raise KeyError(
-                    f"{io}_prefix for {step_name} must be 'staged' or 'canonical' rather than {path_prefix}"
-                )
-            run_conf["steps"][step_name][f"{io}_abs"] = path_prefix_abs
+            for key, path_conf in step_conf.get(io, {}).items():
+                if path_conf["root_dir"] == "staged":
+                    root_dir_abs = staged_dir
+                elif path_conf["root_dir"] == "canonical":
+                    root_dir_abs = paths["LOCAL"]["canonical"]
+                else:
+                    raise KeyError(
+                        f"root_dir for {step_name} must be 'staged' or 'canonical' rather than {root_dir}"
+                    )
+                run_conf["steps"][step_name][f"{io}"][key][
+                    "root_dir_abs"
+                ] = root_dir_abs
 
     return run_conf
 
@@ -64,3 +65,20 @@ def run_step(f, run_conf, *args):
         return f(run_conf, step_conf, *args)
     else:
         return {}
+
+
+def make_path(path_conf, io, key, subs=None):
+    conf = path_conf[io][key]
+
+    filename = conf.get("filename", "")
+    for var in re.findall(r"\/(.*?)\/", filename):
+        try:
+            filename = filename.replace(f"/{var}/", subs[var])
+        except (KeyError, TypeError):
+            raise KeyError(f"Variable {var} not found in subs")
+
+    return os.path.join(
+        conf["root_dir_abs"],
+        conf["sub_dir"],
+        filename,
+    )

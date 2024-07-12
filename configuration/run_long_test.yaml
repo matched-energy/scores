@@ -10,33 +10,77 @@ suppliers:
 steps: 
   ### GRID
   grid_gen_by_tech_by_month:
-    # input: 
-    #   ngeso_mix: 
-    #     dir: canonical  
-    #     subdir: raw
-    #     filename: ngeso_mix
-    input_prefix: canonical 
-    output_prefix: staged 
+    input: 
+      path_historic_generation_mix: 
+        root_dir: canonical  
+        sub_dir: raw
+        filename: historic-generation-mix.csv 
+    output: 
+      path_grid_hh: 
+        root_dir: staged 
+        sub_dir: processed 
+        filename: grid_hh.csv 
+      path_grid_month_tech: 
+        root_dir: staged 
+        sub_dir: processed 
+        filename: grid-month-tech.csv
 
   ### SUPPLIER GENERATION
   supplier_gen_by_tech_by_month:
-    input_prefix: canonical 
-    output_prefix: staged 
+    input: 
+      path_raw_rego: 
+        root_dir: canonical 
+        sub_dir: raw
+        filename: regos-apr2022-mar2023.csv 
+    output:
+        path_processed_agg_month_tech:
+          root_dir: staged
+          sub_dir: processed
+          filename: /SUPPLIER/-month-tech.csv
 
   supplier_gen_by_tech_by_half_hour: 
-    input_prefix: staged 
-    output_prefix: staged 
+    input: 
+        path_supplier_month_tech:
+          root_dir: staged 
+          sub_dir: processed
+          filename: /SUPPLIER/-month-tech.csv
+        path_grid_month_tech:
+          root_dir: staged
+          sub_dir: processed
+          filename: "grid-month-tech.csv"
+        path_grid_hh_generation: 
+          root_dir: staged 
+          sub_dir: processed
+          filename: "grid_hh.csv"
+    output: 
+        output_path: 
+          root_dir: staged
+          sub_dir: final
+          filename: /SUPPLIER/_gen_by_tech_by_half_hour.csv
 
   ### SUPPLIER DEMAND 
   parse_s0142_files: 
-    input_prefix: canonical  
-    output_prefix: staged
+    input: 
+      input_dir: 
+        root_dir: canonical
+        sub_dir: raw/S0142
+    output: 
+      output_dir: 
+        root_dir: staged 
+        sub_dir: processed/S0142
     prefixes: #- S0142_20220402_SF_20220427114051.gz
       - S0142_20220401_SF_20220427115520
 
   supplier_load_by_half_hour:
-    input_prefix: canonical 
-    output_prefix: staged
+    input: 
+      input_dir: 
+        root_dir: staged
+        sub_dir: processed/S0142
+    output:
+      output_path: 
+        root_dir: staged
+        sub_dir: final
+        filename: /BSC_PARTY_ID/_load.csv
     prefixes: 
       - S0142_20220401_SF_20220427115520
       # - S0142_20220402_SF_20220427114051.gz
@@ -44,4 +88,24 @@ steps:
 
   # CALCULATE SCORES
   supplier_scores:
-    input_prefix: staged 
+    input: 
+      path_supplier_month_tech:
+        root_dir: staged
+        sub_dir: processed
+        filename: /SUPPLIER/-month-tech.csv
+      path_grid_month_tech:
+        root_dir: staged
+        sub_dir: processed
+        filename: grid-month-tech.csv
+      path_grid_hh_generation:
+        root_dir: staged
+        sub_dir: processed
+        filename: grid_hh.csv
+      path_supplier_gen_by_tech_by_half_hour:
+        root_dir: staged
+        sub_dir: final 
+        filename: /SUPPLIER/_gen_by_tech_by_half_hour.csv 
+      path_supplier_hh_load:
+        root_dir: staged
+        sub_dir: final 
+        filename: /BSC_PARTY_ID/_load.csv
