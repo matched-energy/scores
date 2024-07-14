@@ -76,7 +76,6 @@ def parse_s0142_files(run_conf, step_conf):
     bsc_party_ids = [
         supplier["bsc_party_id"]
         for supplier in conf.read("suppliers.yaml", conf_dir=True)
-        if supplier["name"] in run_conf["suppliers"]
     ]
     scores.s0142.parse_s0142_files.main(
         input_dir=make_path(step_conf, "input", "input_dir"),
