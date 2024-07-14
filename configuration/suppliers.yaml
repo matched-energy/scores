@@ -7,3 +7,59 @@
   file_id: octopus
   bsc_party_id: MERCURY 
   rego_organisation_name: Octopus Energy Limited
+
+- name: Ecotricity 
+  file_id: ecotricity
+  bsc_party_id: RENC
+  rego_organisation_name: Ecotricity Limited
+
+- name: 100 Green
+  file_id: 100-green
+  bsc_party_id: GRNUKPLC
+  rego_organisation_name: Green Energy (UK) PLC
+
+- name: So Energy 
+  file_id: so-energy
+  bsc_party_id: GOLD
+  rego_organisation_name: So Energy Trading Limited 
+
+- name: Bulb 
+  file_id: bulb 
+  bsc_party_id: REGENT 
+  rego_organisation_name: Bulb Energy Ltd
+
+- name: Shell Energy Retail Limited 
+  file_id: shell-energy-retail-limited 
+  bsc_party_id: FRST01 
+  rego_organisation_name: Shell Energy Retail Limited
+
+- name: Squeaky Clean Energy Limited
+  file_id: squeaky-clean-energy-limited 
+  bsc_party_id: ESSL1015
+  rego_organisation_name: Squeaky Clean Energy Limited
+
+- name: Squeaky Clean Energy Trading Limited
+  file_id: squeaky-clean-energy-trading-limited 
+  bsc_party_id: 20222033
+  rego_organisation_name: Squeaky Clean Energy Limited
+
+- name: Scottish Power Energy Retail Ltd
+  file_id: scottish-power-energy-retail-ltd
+  bsc_party_id: SPSUP01 
+  rego_organisation_name: ScottishPower Energy Retail Ltd
+
+- name: OVO Electricity Limited
+  file_id: ovo 
+  bsc_party_id: OVOE 
+  rego_organisation_name: Ovo Energy
+
+- name: British Gas Trading Ltd
+  file_id: british-gas 
+  bsc_party_id: BRITGAS
+  rego_organisation_name: British Gas Trading Ltd
+
+
+- name: E.ON Next Energy Ltd
+  file_id: eon-next 
+  bsc_party_id: NITTWO01
+  rego_organisation_name: E.ON Next Energy Limited
