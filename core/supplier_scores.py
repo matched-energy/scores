@@ -3,7 +3,6 @@ import pprint
 import sys
 
 import pandas as pd
-
 import scores.configuration.conf as conf
 import scores.plot.plot_supplier
 
@@ -14,23 +13,14 @@ def calc_scores(hh_generation, hh_load):
     hh_generation["TOTAL"] = hh_generation[[f"{tech}_supplier" for tech in TECH]].sum(
         axis=1
     )
-    hh_load["deficit"] = (
-        hh_load["Period Information Imbalance Volume"] - hh_generation["TOTAL"]
-    ).clip(lower=0)
+    load = -hh_load["BM Unit Metered Volume"]
+    hh_load["deficit"] = (load - hh_generation["TOTAL"]).clip(lower=0)
     scores = collections.OrderedDict(
         generation_total=hh_generation["TOTAL"].sum(),
-        load_total=hh_load["Period Information Imbalance Volume"].sum(),
+        load_total=load.sum(),
         unmatched_volume_hh=hh_load["deficit"].sum(),
-        matched_volume_percent_hh=(
-            1
-            - hh_load["deficit"].sum()
-            / hh_load["Period Information Imbalance Volume"].sum()
-        )
-        * 100,
-        matched_volume_percent_annual=(
-            hh_generation["TOTAL"].sum()
-            / hh_load["Period Information Imbalance Volume"].sum()
-        )
+        matched_volume_percent_hh=(1 - hh_load["deficit"].sum() / (load.sum())) * 100,
+        matched_volume_percent_annual=(hh_generation["TOTAL"].sum() / (load.sum()))
         * 100,
     )
     pprint.pprint(scores)
