@@ -32,3 +32,14 @@ class Rego(RegoRoBase, table=True):
 class Ro(RegoRoBase, table=True):
     __tablename__ = "ro"
     certificate_type: str = Field(primary_key=True)
+
+class ERA5Derived(SQLModel, table=True):
+    __tablename__ = "era5_derived"
+    time: datetime.datetime = Field(primary_key=True)
+    latitude: float = Field(primary_key=True)
+    longitude: float = Field(primary_key=True)
+    u100: float
+    v100: float
+    u10: float
+    v10: float
+    t2m: float
