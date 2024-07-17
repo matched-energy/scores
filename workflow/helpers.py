@@ -19,20 +19,25 @@ def parse_args(args=None):
 
 
 def create_staged_dirs_and_set_abs_paths(run_conf):
-    staged_dir = os.path.join(
-        run_conf["local_dirs"]["staged"],
-        f"scores-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+    staged_path = run_conf["local_dirs"]["staged"].replace(
+        "DATETIME", datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     )
-    os.mkdir(staged_dir)
-    os.mkdir(os.path.join(staged_dir, "processed"))
-    os.mkdir(os.path.join(staged_dir, "processed", "S0142"))
-    os.mkdir(os.path.join(staged_dir, "final"))
+    dirs = [
+        ("staged_path",),
+        ("staged_path", "processed"),
+        ("staged_path", "processed", "S0142"),
+        ("staged_path", "final"),
+    ]
+    for dir in dirs:
+        path = os.path.join(*dir)
+        if not os.path.exists(path):
+            os.mkdir(path)
 
     for step_name, step_conf in run_conf["steps"].items():
         for io in ["input", "output"]:
             for key, path_conf in step_conf.get(io, {}).items():
                 if path_conf["root_dir"] == "staged":
-                    root_dir_abs = staged_dir
+                    root_dir_abs = staged_path
                 elif path_conf["root_dir"] == "canonical":
                     root_dir_abs = run_conf["local_dirs"]["canonical"]
                 else:
