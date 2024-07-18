@@ -1,3 +1,4 @@
+import datetime
 import sys
 
 import pandas as pd
@@ -35,7 +36,15 @@ def plot_load_and_gen(hh_generation, hh_load, output_path):
             line=dict(color="black", width=2),
         )
     )
+    range_min = pd.to_datetime(hh_generation["DATETIME"].min())
+    range_max = range_min + datetime.timedelta(days=45)
     fig.update_layout(
+        xaxis=dict(
+            range=[range_min, range_max],
+            rangeslider=dict(
+                visible=True,
+            ),
+        ),
         yaxis=dict(
             title="MW",
         ),
