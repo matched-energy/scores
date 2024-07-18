@@ -1,13 +1,15 @@
 - name: Good Energy
   file_id: good-energy
   bsc_party_id: PURE
+  bm_unit_tag: PURE
   rego_organisation_name: Good Energy Ltd
 
 - name: Octopus 
   file_id: octopus
   bsc_party_id: MERCURY 
+  bm_unit_tag: MRCY
   rego_organisation_name: Octopus Energy Limited
-
+  
 - name: Ecotricity 
   file_id: ecotricity
   bsc_party_id: RENC
@@ -38,10 +40,10 @@
   bsc_party_id: ESSL1015
   rego_organisation_name: Squeaky Clean Energy Limited
 
-- name: Squeaky Clean Energy Trading Limited
-  file_id: squeaky-clean-energy-trading-limited 
-  bsc_party_id: 20222033
-  rego_organisation_name: Squeaky Clean Energy Limited
+# - name: Squeaky Clean Energy Trading Limited
+#   file_id: squeaky-clean-energy-trading-limited 
+#   bsc_party_id: '20222033'
+#   rego_organisation_name: Squeaky Clean Energy Limited
 
 - name: Scottish Power Energy Retail Ltd
   file_id: scottish-power-energy-retail-ltd

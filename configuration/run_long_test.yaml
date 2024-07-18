@@ -114,3 +114,7 @@ steps:
         root_dir: staged
         sub_dir: final
         filename: /SUPPLIER/_score.csv
+      path_plot: 
+        root_dir: staged
+        sub_dir: final
+        filename: /SUPPLIER/.html

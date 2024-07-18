@@ -14,7 +14,7 @@ def plot_load(df):
     fig.show()
 
 
-def plot_and_gen(hh_generation, hh_load):
+def plot_load_and_gen(hh_generation, hh_load, output_path):
     fig = go.Figure()
 
     for tech in conf.read("generation.yaml", conf_dir=True)["TECH"]:
@@ -24,6 +24,7 @@ def plot_and_gen(hh_generation, hh_load):
                 y=hh_generation[f"{tech}_supplier"] * 2,  # MW
                 name=tech,
                 stackgroup="one",
+                mode="none",
             )
         )
     fig.add_trace(
@@ -43,4 +44,4 @@ def plot_and_gen(hh_generation, hh_load):
         plot_bgcolor="rgba(255,255,255,1)",
         paper_bgcolor="rgba(255,255,255,1)",
     )
-    fig.write_html("/tmp/supplier_generation_and_load.html")
+    fig.write_html(output_path)

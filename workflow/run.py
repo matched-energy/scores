@@ -75,6 +75,12 @@ def supplier_scores(run_conf, step_conf, supplier):
             "path_scores",
             dict(SUPPLIER=supplier["file_id"]),
         ),
+        output_path_plot=make_path(
+            step_conf,
+            "output",
+            "path_plot",
+            dict(SUPPLIER=supplier["file_id"]),
+        ),
     )
 
 

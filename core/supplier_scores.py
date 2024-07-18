@@ -5,9 +5,9 @@ import sys
 import numpy as np
 import pandas as pd
 import scipy.optimize
-
 import scores.common.utils as utils
 import scores.configuration.conf as conf
+import scores.plot.plot_supplier
 
 
 def t_hh_rego_total(hh_rego):
@@ -89,25 +89,27 @@ def get_supplier_load(path_supplier_hh_load):
 def main(
     path_supplier_gen_by_tech_by_half_hour,
     path_supplier_hh_load,
-    output_path_scores,
-    plot=False,
+    output_path_scores=None,
+    output_path_plot=None,
 ):
     ## TODO - hh_load --> bsc_hh
     ## TODO - assert timeseries are aligned
     hh_generation = pd.read_csv(path_supplier_gen_by_tech_by_half_hour)
     hh_load = get_supplier_load(path_supplier_hh_load)
 
-    if plot:
-        scores.plot.plot_supplier.plot_and_gen(hh_generation, hh_load)
-
     g_rego_hh = t_hh_rego_total(hh_generation)
 
-    scores = {}
-    scores["independent"] = independent(g_rego_hh, hh_load)
-    scores["embedded"] = embedded(g_rego_hh, hh_load)
-    scores["opt"] = opt(g_rego_hh, hh_load)
-    utils.to_yaml_file(scores, output_path_scores)
-    return scores
+    results = {}
+    results["independent"] = independent(g_rego_hh, hh_load)
+    results["embedded"] = embedded(g_rego_hh, hh_load)
+    results["opt"] = opt(g_rego_hh, hh_load)
+    if output_path_scores:
+        utils.to_yaml_file(results, output_path_scores)
+    if output_path_plot:
+        scores.plot.plot_supplier.plot_load_and_gen(
+            hh_generation, hh_load, output_path_plot
+        )
+    return results
 
 
 if __name__ == "__main__":
