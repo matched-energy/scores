@@ -22,8 +22,8 @@ def assemble_stats(bsc_hh, r_hh, g_hh, l_hh, embedded_ratio):
     r_yr = (r_hh.sum()).clip(min=0)
     r_hh_sum = (r_hh).clip(lower=0).sum()
 
-    l_metered_discernable_yr = -bsc_hh["BM Unit Metered Volume: -ve"].sum()
-    g_embedded_metered_discernable_yr = bsc_hh["BM Unit Metered Volume: +ve"].sum()
+    l_metered_discernible_yr = -bsc_hh["BM Unit Metered Volume: -ve"].sum()
+    g_embedded_metered_discernible_yr = bsc_hh["BM Unit Metered Volume: +ve"].sum()
 
     s_yr = 1 - r_yr / l_hh_sum
     s_hh = 1 - r_hh_sum / l_hh_sum
@@ -31,13 +31,13 @@ def assemble_stats(bsc_hh, r_hh, g_hh, l_hh, embedded_ratio):
     return dict(
         bsc_hh_sum=float(bsc_hh["BM Unit Metered Volume"].sum()),
         g_hh_sum=float(g_hh_sum),
-        g_embedded_metered_discernable_yr=float(g_embedded_metered_discernable_yr),
-        g_embedded_metered_discernable_ratio=float(
-            g_embedded_metered_discernable_yr / g_hh_sum
+        g_embedded_metered_discernible_yr=float(g_embedded_metered_discernible_yr),
+        g_embedded_metered_discernible_ratio=float(
+            g_embedded_metered_discernible_yr / g_hh_sum
         ),
         l_hh_sum=float(l_hh_sum),
-        l_metered_discernable_hh=float(l_metered_discernable_yr),
-        l_metered_discernable_ratio=float(l_metered_discernable_yr / l_hh_sum),
+        l_metered_discernible_hh=float(l_metered_discernible_yr),
+        l_metered_discernible_ratio=float(l_metered_discernible_yr / l_hh_sum),
         r_yr=float(r_yr),
         r_hh_sum=float(r_hh_sum),
         s_yr=float(s_yr),
@@ -62,7 +62,7 @@ def embedded(g_rego_hh, bsc_hh):
     return assemble_stats(bsc_hh, r_hh, g_hh, l_hh, embedded_ratio=1)
 
 
-def opt(g_rego_hh, bsc_hh):
+def mixed(g_rego_hh, bsc_hh):
 
     def f(x):
         g_embedded_hh = x * g_rego_hh
@@ -99,17 +99,17 @@ def main(
 
     g_rego_hh = t_hh_rego_total(hh_generation)
 
-    results = {}
-    results["independent"] = independent(g_rego_hh, hh_load)
-    results["embedded"] = embedded(g_rego_hh, hh_load)
-    results["opt"] = opt(g_rego_hh, hh_load)
+    supplier_scores = {}
+    supplier_scores["scores_independent"] = independent(g_rego_hh, hh_load)
+    supplier_scores["scores_embedded"] = embedded(g_rego_hh, hh_load)
+    supplier_scores["scores_mixed"] = mixed(g_rego_hh, hh_load)
     if output_path_scores:
-        utils.to_yaml_file(results, output_path_scores)
+        utils.to_yaml_file(supplier_scores, output_path_scores)
     if output_path_plot:
         scores.plot.plot_supplier.plot_load_and_gen(
             hh_generation, hh_load, output_path_plot
         )
-    return results
+    return supplier_scores
 
 
 if __name__ == "__main__":
