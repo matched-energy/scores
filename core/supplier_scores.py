@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import scipy.optimize
 
+import scores.common.utils as utils
 import scores.configuration.conf as conf
 
 
@@ -27,21 +28,22 @@ def assemble_stats(bsc_hh, r_hh, g_hh, l_hh, embedded_ratio):
     s_yr = 1 - r_yr / l_hh_sum
     s_hh = 1 - r_hh_sum / l_hh_sum
 
-    return collections.OrderedDict(
-        bsc_hh_sum=bsc_hh["BM Unit Metered Volume"].sum(),
-        g_hh_sum=g_hh_sum,
-        g_embedded_metered_discernable_yr=g_embedded_metered_discernable_yr,
-        g_embedded_metered_discernable_ratio=g_embedded_metered_discernable_yr
-        / g_hh_sum,
-        l_hh_sum=l_hh_sum,
-        l_metered_discernable_hh=l_metered_discernable_yr,
-        l_metered_discernable_ratio=l_metered_discernable_yr / l_hh_sum,
-        r_yr=r_yr,
-        r_hh_sum=r_hh_sum,
-        s_yr=s_yr,
-        s_hh=s_hh,
-        g_l_ratio=g_hh_sum / l_hh_sum,
-        embedded=embedded_ratio,
+    return dict(
+        bsc_hh_sum=float(bsc_hh["BM Unit Metered Volume"].sum()),
+        g_hh_sum=float(g_hh_sum),
+        g_embedded_metered_discernable_yr=float(g_embedded_metered_discernable_yr),
+        g_embedded_metered_discernable_ratio=float(
+            g_embedded_metered_discernable_yr / g_hh_sum
+        ),
+        l_hh_sum=float(l_hh_sum),
+        l_metered_discernable_hh=float(l_metered_discernable_yr),
+        l_metered_discernable_ratio=float(l_metered_discernable_yr / l_hh_sum),
+        r_yr=float(r_yr),
+        r_hh_sum=float(r_hh_sum),
+        s_yr=float(s_yr),
+        s_hh=float(s_hh),
+        g_l_ratio=float(g_hh_sum / l_hh_sum),
+        embedded=float(embedded_ratio),
     )
 
 
@@ -87,6 +89,7 @@ def get_supplier_load(path_supplier_hh_load):
 def main(
     path_supplier_gen_by_tech_by_half_hour,
     path_supplier_hh_load,
+    output_path_scores,
     plot=False,
 ):
     ## TODO - hh_load --> bsc_hh
@@ -103,6 +106,7 @@ def main(
     scores["independent"] = independent(g_rego_hh, hh_load)
     scores["embedded"] = embedded(g_rego_hh, hh_load)
     scores["opt"] = opt(g_rego_hh, hh_load)
+    utils.to_yaml_file(scores, output_path_scores)
     return scores
 
 

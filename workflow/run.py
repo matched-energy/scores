@@ -69,6 +69,12 @@ def supplier_scores(run_conf, step_conf, supplier):
             "path_supplier_hh_load",
             dict(BSC_PARTY_ID=supplier["bsc_party_id"]),
         ),
+        output_path_scores=make_path(
+            step_conf,
+            "output",
+            "path_scores",
+            dict(SUPPLIER=supplier["file_id"]),
+        ),
     )
 
 

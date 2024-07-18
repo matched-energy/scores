@@ -5,7 +5,7 @@ local_dirs:
   canonical:
     ${MATCHED_DATA}
   staged:
-    /tmp/
+    /tmp/scores_DATETIME
 
 ####################################################################################################
 ### RUN CONFIGURATION
@@ -109,3 +109,8 @@ steps:
         root_dir: staged
         sub_dir: final 
         filename: /BSC_PARTY_ID/_load.csv
+    output: 
+      path_scores: 
+        root_dir: staged
+        sub_dir: final
+        filename: /SUPPLIER/_score.csv
