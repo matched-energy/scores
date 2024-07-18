@@ -41,26 +41,6 @@ COLUMN_MAP_BP7 = {
 }
 
 
-def calculate_half_hourly_load(df_final):
-    return (
-        df_final[df_final["BM Unit Id"].str.contains("^2__", regex=True)]
-        .groupby(["Settlement Date", "Settlement Period"])[
-            [
-                "Period BM Unit Balancing Services Volume",
-                "Period Information Imbalance Volume",
-                "Period Expected Metered Volume",
-                "Transmission Loss Factor",
-                "Transmission Loss Multiplier",
-                "BM Unit Applicable Balancing Services Volume",
-                "Period Supplier BM Unit Delivered Volume",
-                "Period Supplier BM Unit Non BM ABSVD Volume",
-            ]
-        ]
-        .sum()
-        .reset_index()
-    )
-
-
 def extract_data(df, bsc_party_ids):
 
     def f(_df, _idx, bsc_party_id, header="APD", column_map=COLUMN_MAP_APD):
@@ -167,7 +147,7 @@ def process_file(input_path, bsc_party_ids):
     with gzip.open(input_path, "rt") as f_in:
         df = read_csv(f_in.read())
         for bsc, df_final in extract_data(df, bsc_party_ids):
-            yield bsc, calculate_half_hourly_load(df_final)
+            yield bsc, df_final
 
 
 def main(input_dir, output_dir, bsc_party_ids, prefixes=None):
