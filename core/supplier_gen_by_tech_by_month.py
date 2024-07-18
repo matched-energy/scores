@@ -190,6 +190,8 @@ def simplify_technology_classification(d_agg_month_tech):
         "Hydro 20MW DNC or less": "HYDRO",
         "Hydro 50kW DNC or less": "HYDRO",
         "Micro Hydro": "HYDRO",
+        "Tidal Flow": "HYDRO",
+        "Hydro greater than 20MW DNC": "HYRDRO",
         "Sewage Gas": "OTHER",
         "Biodegradable": "BIOMASS",
     }
