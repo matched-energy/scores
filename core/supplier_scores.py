@@ -15,7 +15,7 @@ def t_hh_rego_total(hh_rego):
     return hh_rego[[f"{tech}_supplier" for tech in tech_categories]].sum(axis=1)
 
 
-def assemble_stats(bsc_hh, r_hh, g_hh, l_hh, embedded_ratio):
+def assemble_stats(bsc_hh, r_hh, g_hh, l_hh, g_embedded_ratio):
     l_hh_sum = l_hh.sum()
     g_hh_sum = g_hh.sum()
 
@@ -43,26 +43,26 @@ def assemble_stats(bsc_hh, r_hh, g_hh, l_hh, embedded_ratio):
         s_yr=float(s_yr),
         s_hh=float(s_hh),
         g_l_ratio=float(g_hh_sum / l_hh_sum),
-        embedded=float(embedded_ratio),
+        g_embedded_ratio=float(g_embedded_ratio),
     )
 
 
-def independent(g_rego_hh, bsc_hh):
+def independent_generation(g_rego_hh, bsc_hh):
     g_hh = g_rego_hh
     l_hh = -bsc_hh["BM Unit Metered Volume"]
     r_hh = l_hh - g_hh
-    return assemble_stats(bsc_hh, r_hh, g_hh, l_hh, embedded_ratio=0)
+    return l_hh, assemble_stats(bsc_hh, r_hh, g_hh, l_hh, g_embedded_ratio=0)
 
 
-def embedded(g_rego_hh, bsc_hh):
+def embedded_generation(g_rego_hh, bsc_hh):
     g_hh = g_rego_hh
     l_hh = g_rego_hh - bsc_hh["BM Unit Metered Volume"]
     r_hh = -bsc_hh["BM Unit Metered Volume"]
 
-    return assemble_stats(bsc_hh, r_hh, g_hh, l_hh, embedded_ratio=1)
+    return l_hh, assemble_stats(bsc_hh, r_hh, g_hh, l_hh, g_embedded_ratio=1)
 
 
-def mixed(g_rego_hh, bsc_hh):
+def mixed_generation(g_rego_hh, bsc_hh):
 
     def f(x):
         g_embedded_hh = x * g_rego_hh
@@ -77,7 +77,7 @@ def mixed(g_rego_hh, bsc_hh):
     g_independent_hh = (1 - opt.x) * g_rego_hh
     r_hh = -bsc_hh["BM Unit Metered Volume"] - g_independent_hh
 
-    return assemble_stats(bsc_hh, r_hh, g_hh, l_hh, embedded_ratio=opt.x)
+    return l_hh, assemble_stats(bsc_hh, r_hh, g_hh, l_hh, g_embedded_ratio=opt.x)
 
 
 def get_supplier_load(path_supplier_hh_load):
@@ -100,14 +100,18 @@ def main(
     g_rego_hh = t_hh_rego_total(hh_generation)
 
     supplier_scores = {}
-    supplier_scores["scores_independent"] = independent(g_rego_hh, hh_load)
-    supplier_scores["scores_embedded"] = embedded(g_rego_hh, hh_load)
-    supplier_scores["scores_mixed"] = mixed(g_rego_hh, hh_load)
+    l_hh, supplier_scores["independent_generation"] = independent_generation(
+        g_rego_hh, hh_load
+    )
+    l_hh, supplier_scores["embedded_generation"] = embedded_generation(
+        g_rego_hh, hh_load
+    )
+    l_hh, supplier_scores["mixed_generation"] = mixed_generation(g_rego_hh, hh_load)
     if output_path_scores:
         utils.to_yaml_file(supplier_scores, output_path_scores)
     if output_path_plot:
         scores.plot.plot_supplier.plot_load_and_gen(
-            hh_generation, hh_load, output_path_plot
+            hh_generation, l_hh, output_path_plot
         )
     return supplier_scores
 

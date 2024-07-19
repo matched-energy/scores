@@ -3,42 +3,58 @@
   bsc_party_id: PURE
   bm_unit_tag: PURE
   rego_organisation_name: Good Energy Ltd
+  scoring_methodology: embedded_generation 
+  confidence: medium 
 
 - name: Octopus 
   file_id: octopus
   bsc_party_id: MERCURY 
   bm_unit_tag: MRCY
   rego_organisation_name: Octopus Energy Limited
+  scoring_methodology: independent_generation 
+  confidence: medium 
   
 - name: Ecotricity 
   file_id: ecotricity
   bsc_party_id: RENC
   rego_organisation_name: Ecotricity Limited
+  scoring_methodology: mixed_generation 
+  confidence: very_low!
 
 - name: 100 Green
   file_id: 100-green
   bsc_party_id: GRNUKPLC
   rego_organisation_name: Green Energy (UK) PLC
+  scoring_methodology: mixed_generation 
+  confidence: very_low!
 
 - name: So Energy 
   file_id: so-energy
   bsc_party_id: GOLD
   rego_organisation_name: So Energy Trading Limited 
+  scoring_methodology: independent_generation 
+  confidence: medium
 
 - name: Bulb 
   file_id: bulb 
   bsc_party_id: REGENT 
   rego_organisation_name: Bulb Energy Ltd
+  scoring_methodology: independent_generation 
+  confidence: low 
 
 - name: Shell Energy Retail Limited 
   file_id: shell-energy-retail-limited 
   bsc_party_id: FRST01 
   rego_organisation_name: Shell Energy Retail Limited
+  scoring_methodology: independent_generation 
+  confidence: medium
 
 - name: Squeaky Clean Energy Limited
   file_id: squeaky-clean-energy-limited 
   bsc_party_id: ESSL1015
   rego_organisation_name: Squeaky Clean Energy Limited
+  scoring_methodology: independent_generation 
+  confidence: medium
 
 # - name: Squeaky Clean Energy Trading Limited
 #   file_id: squeaky-clean-energy-trading-limited 
@@ -49,19 +65,34 @@
   file_id: scottish-power-energy-retail-ltd
   bsc_party_id: SPSUP01 
   rego_organisation_name: ScottishPower Energy Retail Ltd
+  scoring_methodology: independent_generation 
+  confidence: medium
 
 - name: OVO Electricity Limited
   file_id: ovo 
   bsc_party_id: OVOE 
   rego_organisation_name: Ovo Energy
+  scoring_methodology: independent_generation 
+  confidence: medium
 
 - name: British Gas Trading Ltd
   file_id: british-gas 
   bsc_party_id: BRITGAS
   rego_organisation_name: British Gas Trading Ltd
+  scoring_methodology: independent_generation 
+  confidence: medium
 
 
 - name: E.ON Next Energy Ltd
   file_id: eon-next 
   bsc_party_id: NITTWO01
   rego_organisation_name: E.ON Next Energy Limited
+  scoring_methodology: mixed_generation 
+  confidence: low
+
+- name: Bryt Energy Limited
+  file_id: bryt-energy 
+  bsc_party_id: BULLION
+  rego_organisation_name: Bryt Energy Limited
+  scoring_methodology: independent_generation
+  confidence: medium 

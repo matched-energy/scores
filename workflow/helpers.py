@@ -23,10 +23,12 @@ def create_staged_dirs_and_set_abs_paths(run_conf):
         "DATETIME", datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     )
     dirs = [
-        (staged_path,),
+        # TODO: move to configuration or infer from run.yaml
         (staged_path, "processed"),
         (staged_path, "processed", "S0142"),
         (staged_path, "final"),
+        (staged_path, "final", "published"),
+        (staged_path, "final", "published", "timeseries"),
     ]
     for dir in dirs:
         path = os.path.join(*dir)

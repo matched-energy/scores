@@ -3,6 +3,7 @@ import sys
 
 import pandas as pd
 import plotly.graph_objects as go
+
 import scores.configuration.conf as conf
 
 
@@ -15,7 +16,7 @@ def plot_load(df):
     fig.show()
 
 
-def plot_load_and_gen(hh_generation, hh_load, output_path):
+def plot_load_and_gen(hh_generation, l_hh, output_path):
     fig = go.Figure()
 
     for tech in conf.read("generation.yaml", conf_dir=True)["TECH"]:
@@ -30,8 +31,10 @@ def plot_load_and_gen(hh_generation, hh_load, output_path):
         )
     fig.add_trace(
         go.Scatter(
-            x=hh_load["Settlement Datetime"],
-            y=hh_load["Period Information Imbalance Volume"] * 2,  # MW
+            x=hh_generation["DATETIME"],  # TODO
+            y=l_hh * 2,
+            # x=l_hh["Settlement Datetime"],
+            # y=l_hh["Period Information Imbalance Volume"] * 2,  # MW
             name="load",
             line=dict(color="black", width=2),
         )
