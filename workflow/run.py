@@ -11,7 +11,12 @@ import scores.publish
 import scores.publish.supplier
 import scores.s0142.parse_s0142_files
 from scores.configuration import conf
-from scores.workflow.helpers import make_path, read_conf_and_make_dirs, run_step
+from scores.workflow.helpers import (
+    get_suppliers,
+    make_path,
+    read_conf_and_make_dirs,
+    run_step,
+)
 
 
 def grid_gen_by_tech_by_month(run_conf, step_conf):
@@ -140,7 +145,7 @@ def process_suppliers(*args):
     run_step(parse_s0142_files, run_conf)
 
     results = {}
-    for supplier in conf.read("suppliers.yaml", conf_dir=True):
+    for supplier in get_suppliers(run_conf):
         r = {}
         r.update(run_step(supplier_load_by_half_hour, run_conf, supplier))
         r.update(run_step(supplier_gen_by_tech_by_month, run_conf, supplier))

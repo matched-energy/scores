@@ -59,6 +59,14 @@ def read_conf_and_make_dirs(*args):
     return run_conf
 
 
+def get_suppliers(run_conf):
+    return [
+        supplier
+        for supplier in conf.read("suppliers.yaml", conf_dir=True)
+        if ((subset := run_conf.get("suppliers")) is None or supplier["name"] in subset)
+    ]
+
+
 def run_step(f, run_conf, *args):
     if step_conf := run_conf["steps"].get(f.__name__):
         return f(run_conf, step_conf, *args)
