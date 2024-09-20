@@ -13,7 +13,7 @@
   rego_organisation_name: Octopus Energy Limited
   scoring_methodology: independent_generation 
   confidence: medium 
-  
+
 - name: Ecotricity 
   file_id: ecotricity
   bsc_party_id: RENC
@@ -94,5 +94,12 @@
   file_id: bryt-energy 
   bsc_party_id: BULLION
   rego_organisation_name: Bryt Energy Limited
+  scoring_methodology: independent_generation
+  confidence: medium 
+
+- name: Rebel Energy 
+  file_id: rebel-energy 
+  bsc_party_id: CILLENI
+  rego_organisation_name: Rebel Energy (Cilleni)
   scoring_methodology: independent_generation
   confidence: medium 
