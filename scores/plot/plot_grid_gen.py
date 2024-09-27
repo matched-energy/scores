@@ -1,7 +1,8 @@
+import pandas as pd
 import plotly.graph_objects as go
 
 
-def plot(d):
+def plot(d: pd.DataFrame) -> None:
 
     fig = go.Figure()
 

@@ -1,5 +1,5 @@
 import datetime
-import sys
+from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 import scores.configuration.conf as conf
 
 
-def plot_load(df):
+def plot_load(df: pd.DataFrame) -> None:
     fig = go.Figure(
         data=go.Scatter(
             x=df["Settlement Datetime"], y=df["Period Information Imbalance Volume"]
@@ -16,7 +16,9 @@ def plot_load(df):
     fig.show()
 
 
-def plot_load_and_gen(hh_generation, l_hh, output_path):
+def plot_load_and_gen(
+    hh_generation: pd.DataFrame, l_hh: pd.Series, output_path: Path
+) -> None:
     fig = go.Figure()
 
     for tech in conf.read("generation.yaml", conf_dir=True)["TECH"]:

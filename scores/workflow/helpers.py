@@ -2,6 +2,7 @@ import argparse
 import datetime
 import os
 import re
+from pathlib import Path
 
 from scores.configuration import conf
 
@@ -74,7 +75,7 @@ def run_step(f, run_conf, *args):
         return {}
 
 
-def make_path(path_conf, io, key, subs=None):
+def make_path(path_conf, io, key, subs=None) -> Path:
     conf = path_conf[io][key]
 
     filename = conf.get("filename", "")
@@ -84,8 +85,4 @@ def make_path(path_conf, io, key, subs=None):
         except (KeyError, TypeError):
             raise KeyError(f"Variable {var} not found in subs")
 
-    return os.path.join(
-        conf["root_dir_abs"],
-        conf["sub_dir"],
-        filename,
-    )
+    return Path(conf["root_dir_abs"]) / conf["sub_dir"] / filename

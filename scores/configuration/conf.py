@@ -1,24 +1,26 @@
 import os
 import re
+from pathlib import Path
+from typing import Any
 
 import scores.common.utils as utils
 
-DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+DIR = Path.cwd()
 
 
-def get_vars(text):
+def get_vars(text: str) -> list[str]:
     return re.findall(r"\${(.*?)}", text)
 
 
-def substitute_vars(text):
+def substitute_vars(text: str) -> str:
     for var in get_vars(text):
         try:
             text = text.replace(f"${{{var}}}", os.environ[var])
         except KeyError:
-            raise KeyError(f"Enviroment variable {var} not set")
+            raise KeyError(f"Environment variable {var} not set")
     return text
 
 
-def read(path, conf_dir=False):
-    with open(os.path.join(DIR, path) if conf_dir else path, "r") as file:
+def read(path: Path, conf_dir: bool = False) -> Any:
+    with open(DIR / path if conf_dir else path, "r") as file:
         return utils.from_yaml_text(substitute_vars(file.read()))

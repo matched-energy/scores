@@ -3,11 +3,13 @@ import gzip
 import os
 import sys
 from io import StringIO
+from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
 
-COLUMN_MAP_APD = {
+COLUMN_MAP_APD: dict[int, str] = {
     1: "Production/Consumption Flag",
     2: "BSSC Limited Cost Allocation",
     3: "Energy Imbalance Charge",
@@ -20,7 +22,7 @@ COLUMN_MAP_APD = {
     10: "Residual Cashflow Reallocation Proportion",
 }
 
-COLUMN_MAP_BP7 = {
+COLUMN_MAP_BP7: dict[int, str] = {
     1: "BM Unit Id",
     2: "Information Imbalance Cashflow",
     3: "BM Unit Period Non-Delivery Charge",
@@ -41,7 +43,7 @@ COLUMN_MAP_BP7 = {
 }
 
 
-def extract_data(df, bsc_party_ids):
+def extract_data(df: pd.DataFrame, bsc_party_ids: list[str]) -> pd.DataFrame:
 
     def f(_df, _idx, bsc_party_id, header="APD", column_map=COLUMN_MAP_APD):
         lines = []
@@ -135,7 +137,7 @@ def extract_data(df, bsc_party_ids):
                 yield bsc_party_id, df_final
 
 
-def read_csv(content):
+def read_csv(content: str) -> pd.DataFrame:
     col_count = [len(l.split("|")) for l in content.splitlines()]
     column_index = [i for i in range(0, max(col_count))]
     return pd.read_csv(
@@ -143,14 +145,19 @@ def read_csv(content):
     )
 
 
-def process_file(input_path, bsc_party_ids):
+def process_file(input_path: Path, bsc_party_ids: list[str]):
     with gzip.open(input_path, "rt") as f_in:
         df = read_csv(f_in.read())
         for bsc, df_final in extract_data(df, bsc_party_ids):
             yield bsc, df_final
 
 
-def main(input_dir, output_dir, bsc_party_ids, prefixes=None):
+def main(
+    input_dir: Path,
+    output_dir: Path,
+    bsc_party_ids: list[str],
+    prefixes: Optional[list[str]] = None,
+) -> None:
     filenames = sorted(
         [
             filename
@@ -175,4 +182,4 @@ def main(input_dir, output_dir, bsc_party_ids, prefixes=None):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3].split(" "))
+    main(Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3].split(" "))

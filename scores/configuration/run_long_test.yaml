@@ -5,7 +5,8 @@ local_dirs:
   canonical:
     ${MATCHED_DATA}
   staged:
-    /tmp/scores_DATETIME
+    /Users/admin/Documents/matched_energy/scores_DATETIME
+#    /tmp/scores_DATETIME
 
 ####################################################################################################
 ### RUN CONFIGURATION

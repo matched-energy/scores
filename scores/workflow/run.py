@@ -1,7 +1,6 @@
 import sys
 from pprint import pprint
 
-import scores.common.utils as utils
 import scores.core.grid_gen_by_tech_by_month
 import scores.core.supplier_gen_by_tech_by_half_hour
 import scores.core.supplier_gen_by_tech_by_month
@@ -133,7 +132,7 @@ def publish(run_conf, step_conf, supplier):
     return {}
 
 
-def process_suppliers(*args):
+def process_suppliers(*args) -> dict[str, dict]:
     ## where does year belong? needs apply to regos and grid.
     ## ^   should handle in pre-processing
     ## ... and be explicit about timeranges in filename
@@ -144,7 +143,7 @@ def process_suppliers(*args):
     run_step(grid_gen_by_tech_by_month, run_conf)
     run_step(parse_s0142_files, run_conf)
 
-    results = {}
+    results: dict[str, dict] = {}
     for supplier in get_suppliers(run_conf):
         r = {}
         r.update(run_step(supplier_load_by_half_hour, run_conf, supplier))
