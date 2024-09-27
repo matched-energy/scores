@@ -1,8 +1,7 @@
 #!/bin/zsh
 
-#source venv/bin/activate
+source venv/bin/activate
 export PYTHONPATH=${PYTHONPATH}:$DEV/matched
 
 # export DROPBOX_DATA=/Users/jbloggs/Dropbox/data
-#export MATCHED_DATA=${DROPBOX_DATA}/matched-data
-export MATCHED_DATA="/Users/admin/Documents/matched_energy/matched-data-sample"
+export MATCHED_DATA=${DROPBOX_DATA}/matched-data
