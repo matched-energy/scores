@@ -83,7 +83,6 @@
   scoring_methodology: independent_generation 
   confidence: medium
 
-
 - name: E.ON Next Energy Ltd
   file_id: eon-next 
   bsc_party_id: NITTWO01
@@ -102,5 +101,61 @@
   file_id: rebel-energy 
   bsc_party_id: CILLENI
   rego_organisation_name: Rebel Energy (Cilleni)
+  scoring_methodology: independent_generation
+  confidence: medium 
+
+- name: Outfox The Market 
+  file_id: outfox-the-market 
+  bsc_party_id: FOXGLOVE
+  rego_organisation_name: Foxglove Energy Supply Limited
+  scoring_methodology: independent_generation
+  confidence: medium 
+
+- name: Fuse Energy  
+  file_id: fuse-energy  
+  bsc_party_id: PADDINGT
+  rego_organisation_name: tbd
+  scoring_methodology: independent_generation
+  confidence: medium 
+
+- name: London Power 
+  file_id: london-power 
+  bsc_party_id: LPN 
+  rego_organisation_name: tbd
+  scoring_methodology: independent_generation
+  confidence: medium 
+
+- name: EDF Energy 
+  file_id: edf-energy 
+  bsc_party_id: LENCO 
+  rego_organisation_name: EDF Energy Customers Plc
+  scoring_methodology: independent_generation
+  confidence: medium 
+
+- name: SSE 
+  file_id: sse 
+  bsc_party_id: SSE 
+  rego_organisation_name: SSE Energy Supply Ltd
+  scoring_methodology: independent_generation
+  confidence: medium 
+
+# - name: Utility Warehouse
+#   file_id: utility-warehouse 
+#   bsc_party_id: ?? 
+#   rego_organisation_name: ?? 
+#   scoring_methodology: independent_generation
+#   confidence: medium 
+
+- name: Utilita 
+  file_id: utilita 
+  bsc_party_id: UTILITA
+  rego_organisation_name: Utilita Electricity Limited
+  scoring_methodology: independent_generation
+  confidence: medium 
+
+- name: Co-operative Energy
+  file_id: co-operative-energy 
+  bsc_party_id: VOLA 
+  rego_organisation_name: Utilita Electricity Limited
   scoring_methodology: independent_generation
   confidence: medium 
