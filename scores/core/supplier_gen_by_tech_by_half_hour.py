@@ -1,14 +1,17 @@
+from pathlib import Path
+from typing import Optional
+
 import pandas as pd
 
 import scores.configuration.conf as conf
 
 
 def calculate_supplier_generation(
-    path_supplier_month_tech,
-    path_grid_month_tech,
-    path_grid_hh_generation,
-    output_path=None,
-):
+    path_supplier_month_tech: Path,
+    path_grid_month_tech: Path,
+    path_grid_hh_generation: Path,
+    output_path: Optional[Path] = None,
+) -> pd.DataFrame:
     supplier_month_tech = pd.read_csv(path_supplier_month_tech)
     grid_month_tech = pd.read_csv(path_grid_month_tech)
 

@@ -1,11 +1,13 @@
 import datetime
 import sys
+from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 
-COLUMNS = [
+COLUMNS: list[str] = [
     "Accreditation No.",
     "Generating Station / Agent Group",
     "Station TIC",
@@ -26,7 +28,9 @@ COLUMNS = [
 ]
 
 
-class StatisticsRaw(object):
+class StatisticsRaw:
+    # TODO: rectify StatisticsRaw and StatisticsProcessed classes.=]
+    #  Is the intent that they inherit pd.Dataframe?
 
     def run(d):
         return {
@@ -57,7 +61,7 @@ class StatisticsRaw(object):
         return s
 
 
-class StatisticsProcessed(object):
+class StatisticsProcessed:
     def run(d):
         return {
             f.strip("stat_"): getattr(StatisticsProcessed, f)(d)
@@ -69,13 +73,13 @@ class StatisticsProcessed(object):
         return d["MWh"].sum()
 
 
-def read(filename, current_holder_organisation_name):
-    d = pd.read_csv(filename, names=COLUMNS, skiprows=4)
+def read(filepath: Path, current_holder_organisation_name: str) -> pd.DataFrame:
+    d = pd.read_csv(filepath, names=COLUMNS, skiprows=4)
     return d[d["Current Holder Organisation Name"] == current_holder_organisation_name]
 
 
-def parse_output_period(d):
-    def parse_date_range(date_str):
+def parse_output_period(d: pd.DataFrame) -> pd.DataFrame:
+    def parse_date_range(date_str: str) -> tuple[pd.Timestamp, pd.Timestamp]:
         if "/" in date_str:
             start, end = date_str.split(" - ")
             return (
@@ -117,7 +121,7 @@ def parse_output_period(d):
     return d
 
 
-def calculate_monthly_generation(d):
+def calculate_monthly_generation(d: pd.DataFrame) -> pd.DataFrame:
     monthly_generation = []
     for _, row in d.iterrows():
         if row["months_difference"] > 12:
@@ -165,7 +169,7 @@ def calculate_monthly_generation(d):
     )
 
 
-def group_by_technology_and_month(d_monthly):
+def group_by_technology_and_month(d_monthly: pd.DataFrame) -> pd.DataFrame:
     return (
         d_monthly.groupby(["Output Month", "Technology Group"])["MWh"]
         .sum()
@@ -174,7 +178,7 @@ def group_by_technology_and_month(d_monthly):
     )
 
 
-def simplify_technology_classification(d_agg_month_tech):
+def simplify_technology_classification(d_agg_month_tech: pd.DataFrame) -> pd.DataFrame:
     mapping = {
         "Biomass": "BIOMASS",
         "Biomass 50kW DNC or less": "BIOMASS",
@@ -211,10 +215,10 @@ def simplify_technology_classification(d_agg_month_tech):
 
 
 def main(
-    path_raw_rego,
-    current_holder_organisation_name,
-    path_processed_regos=None,
-    path_processed_agg_month_tech=None,
+    path_raw_rego: Path,
+    current_holder_organisation_name: str,
+    path_processed_regos: Optional[Path] = None,
+    path_processed_agg_month_tech: Optional[Path] = None,
 ):
     d = read(path_raw_rego, current_holder_organisation_name)
     # TODO filter just redeemed
@@ -232,8 +236,8 @@ def main(
 
 if __name__ == "__main__":
     main(
-        path_raw_rego=sys.argv[1],
+        path_raw_rego=Path(sys.argv[1]),
         current_holder_organisation_name=sys.argv[2],
-        path_processed_regos=sys.argv[3],
-        path_processed_agg_month_tech=sys.argv[4],
+        path_processed_regos=Path(sys.argv[3]),
+        path_processed_agg_month_tech=Path(sys.argv[4]),
     )
