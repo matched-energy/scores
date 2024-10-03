@@ -5,6 +5,7 @@ import sys
 import numpy as np
 import pandas as pd
 import scipy.optimize
+
 import scores.common.utils as utils
 import scores.configuration.conf as conf
 import scores.plot.plot_supplier
@@ -89,6 +90,7 @@ def get_supplier_load(path_supplier_hh_load):
 def main(
     path_supplier_gen_by_tech_by_half_hour,
     path_supplier_hh_load,
+    scoring_methodology,
     output_path_scores=None,
     output_path_plot=None,
 ):
@@ -100,18 +102,21 @@ def main(
     g_rego_hh = t_hh_rego_total(hh_generation)
 
     supplier_scores = {}
-    l_hh, supplier_scores["independent_generation"] = independent_generation(
+    l_hh = {}
+    l_hh["independent_generation"], supplier_scores["independent_generation"] = (
+        independent_generation(g_rego_hh, hh_load)
+    )
+    l_hh["embedded_generation"], supplier_scores["embedded_generation"] = (
+        embedded_generation(g_rego_hh, hh_load)
+    )
+    l_hh["mixed_generation"], supplier_scores["mixed_generation"] = mixed_generation(
         g_rego_hh, hh_load
     )
-    l_hh, supplier_scores["embedded_generation"] = embedded_generation(
-        g_rego_hh, hh_load
-    )
-    l_hh, supplier_scores["mixed_generation"] = mixed_generation(g_rego_hh, hh_load)
     if output_path_scores:
         utils.to_yaml_file(supplier_scores, output_path_scores)
     if output_path_plot:
-        scores.plot.plot_supplier.plot_load_and_gen(
-            hh_generation, l_hh, output_path_plot
+        scores.plot.plot_supplier.plot_load_and_gen_details(
+            hh_generation, l_hh[scoring_methodology], hh_load, output_path_plot
         )
     return supplier_scores
 
