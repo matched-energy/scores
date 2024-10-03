@@ -29,8 +29,12 @@ def create_staged_dirs_and_set_abs_paths(run_conf):
         (staged_path, "processed", "S0142"),
         (staged_path, "final"),
         (staged_path, "final", "published"),
-        (staged_path, "final", "published", "timeseries"),
+        (staged_path, "final", "published", "scores_data"),
     ]
+    for supplier in get_suppliers(run_conf):
+        dirs.append(
+            (staged_path, "final", "published", "scores_data", supplier["file_id"])
+        )
     for dir in dirs:
         path = os.path.join(*dir)
         if not os.path.exists(path):
