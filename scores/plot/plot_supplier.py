@@ -1,5 +1,7 @@
 import datetime
 
+from pathlib import Path
+
 import matplotlib.colors as mcolors
 import numpy as np
 import pandas as pd
@@ -9,7 +11,8 @@ from plotly.subplots import make_subplots
 import scores.configuration.conf as conf
 
 
-def plot_load(df):
+
+def plot_load(df: pd.DataFrame) -> None:
     fig = go.Figure(
         data=go.Scatter(
             x=df["Settlement Datetime"], y=df["Period Information Imbalance Volume"]
@@ -17,8 +20,12 @@ def plot_load(df):
     )
     fig.show()
 
+    
+def plot_load_and_gen(
+    hh_generation: pd.DataFrame, l_hh: pd.Series, output_path: Path
+) -> None:
 
-def plot_load_and_gen(hh_generation, l_hh, output_path):
+    for tech in conf.read("generation.yaml", conf_dir=True)["TECH"]:
     hh_generation["total"] = hh_generation.drop(columns=["DATETIME"]).sum(axis=1)
     # row_heights = [0.7, 0.3]
     row_heights = [1]
@@ -244,7 +251,12 @@ def plot_load_and_gen(hh_generation, l_hh, output_path):
     fig.write_image(f"{output_path}.png", scale=3)
 
 
-def plot_load_and_gen_details(hh_generation, l_hh, hh_load, output_path):
+def plot_load_and_gen_details(
+  hh_generation: pd.DataFrame, 
+  l_hh: pd.Series, 
+  hh_load: pd.DataFrame, 
+  output_path: Path
+) -> None:
     fig = go.Figure()
 
     gen_plot_classes = dict(

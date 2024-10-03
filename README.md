@@ -7,9 +7,9 @@ Overview
 Quick start
 ====================
 
-Download data
+Download sample data
 ----------
-https://www.dropbox.com/scl/fo/5ito3kxb9njrop9u0wct6/ANkfP39_z8FPmm4FF_jK3wU?rlkey=sd2o4suyihzpt2q5tsi3992g7&st=jgolydim&dl=0
+https://www.dropbox.com/scl/fo/ej3kagc932mzpedqyf8m6/ADKutwWd1iYDwxhhfEY8m_E?rlkey=1914ovaujkyc2o1wv9ix372o7&st=iv218ufs&dl=0
 
 Setup
 ----------

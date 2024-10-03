@@ -1,12 +1,14 @@
 import os
 import sys
 
+from pathlib import Path
+from typing import Optional
+
 import pandas as pd
-import plotly.graph_objects as go
-import scores.plot.plot_supplier
+from scores.plot import plot_supplier
 
 
-def filter_and_group(df):
+def filter_and_group(df: pd.DataFrame) -> pd.DataFrame:
     return (
         df[df["BM Unit Id"].str.contains(f"^2__", regex=True)]
         .groupby(["Settlement Date", "Settlement Period"])
@@ -15,7 +17,7 @@ def filter_and_group(df):
     )
 
 
-def segregate_import_exports(df):
+def segregate_import_exports(df: pd.DataFrame) -> pd.DataFrame:
     updated_df = df.copy()
     updated_df["BM Unit Metered Volume: +ve"] = updated_df[
         "BM Unit Metered Volume"
@@ -26,7 +28,7 @@ def segregate_import_exports(df):
     return updated_df
 
 
-def concat_and_sort(dfs):
+def concat_and_sort(dfs: list[pd.DataFrame]) -> pd.DataFrame:
     df = pd.concat(dfs)
     df["Settlement Date"] = pd.to_datetime(df["Settlement Date"], dayfirst=True)
     df = df.sort_values(["Settlement Date", "Settlement Period"])
@@ -38,7 +40,13 @@ def concat_and_sort(dfs):
     return df
 
 
-def main(input_dir, output_path, bsc_lead_party_id, prefixes=None, plot=False):
+def main(
+    input_dir: Path,
+    output_path: Path,
+    bsc_lead_party_id: str,
+    prefixes: Optional[list[str]] = None,
+    plot: bool = False,
+) -> pd.DataFrame:
     df = concat_and_sort(
         [
             filter_and_group(
@@ -52,9 +60,9 @@ def main(input_dir, output_path, bsc_lead_party_id, prefixes=None, plot=False):
     )
     df.to_csv(output_path, index=False)
     if plot:
-        scores.plot.plot_supplier.plot_load(df)
+        plot_supplier.plot_load(df)
     return df
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3])

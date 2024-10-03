@@ -2,11 +2,19 @@ import os
 import shutil
 import sys
 
+from pathlib import Path
+from typing import Any
+
 import scores.common.utils as utils
 import scores.configuration.conf as conf
 
 
-def publish_scores(scores_input_path, scores_output_path, plot_target_path, supplier):
+def publish_scores(
+    scores_input_path: Path,
+    scores_output_path: Path,
+    plot_target_path: Path,
+    supplier: dict[str, Any],
+) -> None:
     supplier_scores = utils.from_yaml_file(scores_input_path)[
         supplier["scoring_methodology"]
     ]
@@ -42,16 +50,20 @@ def publish_scores(scores_input_path, scores_output_path, plot_target_path, supp
         f.writelines(l + "\n" for l in lines)
 
 
-def publish_plot(src_path, target_path):
+def publish_plot(src_path: Path, target_path: Path) -> None:
     shutil.copy2(src_path, target_path)
 
 
 def main(
-    scores_input_path, scores_output_path, plot_src_path, plot_target_path, supplier
-):
+    scores_input_path: Path,
+    scores_output_path: Path,
+    plot_src_path: Path,
+    plot_target_path: Path,
+    supplier: dict[str, Any],
+) -> None:
     publish_scores(scores_input_path, scores_output_path, plot_target_path, supplier)
     publish_plot(plot_src_path, plot_target_path)
 
 
 if __name__ == "__main__":
-    publish_plot(sys.argv[1], sys.argv[2])
+    publish_plot(Path(sys.argv[1]), Path(sys.argv[2]))
