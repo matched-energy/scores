@@ -12,6 +12,7 @@
   bm_unit_tag: MRCY
   rego_organisation_name: Octopus Energy Limited
   scoring_methodology: independent_generation 
+  known_issues: We expect 100% volumetric matching and are reviewing our calculations  
   confidence: medium 
 
 - name: Ecotricity 
