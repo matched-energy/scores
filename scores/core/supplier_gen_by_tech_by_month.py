@@ -31,7 +31,6 @@ COLUMNS: list[str] = [
 class StatisticsRaw:
     # TODO: rectify StatisticsRaw and StatisticsProcessed classes.=]
     #  Is the intent that they inherit pd.Dataframe?
-
     def run(d):
         return {
             f.strip("stat_"): getattr(StatisticsRaw, f)(d)

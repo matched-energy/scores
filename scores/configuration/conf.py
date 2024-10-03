@@ -1,5 +1,6 @@
 import os
 import re
+
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +21,7 @@ def substitute_vars(text: str) -> str:
             raise KeyError(f"Environment variable {var} not set")
     return text
 
-
+  
 def read(path: Path, conf_dir: bool = False) -> Any:
     with open(DIR / path if conf_dir else path, "r") as file:
         return utils.from_yaml_text(substitute_vars(file.read()))
