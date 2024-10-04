@@ -108,16 +108,13 @@ def plot_supplier(regos: Path, current_holder: str, output_path: Path) -> None:
         .reindex(regos_supplier_by_station.index)
     )
 
-    if len(regos_supplier) == 0:
-        return
-
     row_heights = [0.33, 0.33, 0.33]
     column_widths = [0.8, 0.2]
     subplot_titles = {
         "<b>MWh per generator</b>": (0, 1),
         "<b>Offtake volumes</b>": (0.75, 1),
         "<b>Offtake by class</b>": (0.75, 0.67 - 0.03),
-        "<b>Fraction of offtake per generator</b>": (0, 0.33 - 0.06),
+        "<b>Fraction of total generator output</b>": (0, 0.33 - 0.06),
         "<b>Offtake model</b>": (0.75, 0.33 - 0.06),
         "6": (0, 0),
     }
@@ -135,6 +132,9 @@ def plot_supplier(regos: Path, current_holder: str, output_path: Path) -> None:
         ],
         subplot_titles=list(subplot_titles.keys()),
     )
+    if len(regos_supplier) == 0:
+        fig.write_html(output_path)
+        return
 
     ## TOP-LEFT
     fig.add_trace(
