@@ -1,7 +1,6 @@
 import os
 import shutil
 import sys
-
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +22,7 @@ def publish_scores(
         f"permalink: /scores/{supplier['file_id']}/",
         "permalink_validation: false",
         f"fs_path: /scores/data/{supplier['file_id']}",
-        f"chart_timeseries: {os.sep.join(plot_target_path.split(os.sep)[-1:])}",
+        f"chart_timeseries: {plot_target_path.name}",
         "layout: supplier",
         f'title: {supplier["name"]}',
         f"bsc_party_id: {supplier['bsc_party_id']}",
