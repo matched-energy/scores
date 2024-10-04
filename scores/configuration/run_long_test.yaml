@@ -118,3 +118,16 @@ steps:
         root_dir: staged
         sub_dir: final
         filename: /SUPPLIER/.html
+
+
+  rego_analysis: 
+    input: 
+      path_raw_rego: 
+        root_dir: canonical 
+        sub_dir: raw
+        filename: regos-apr2022-mar2023.csv 
+    output:
+      plot_target_path:
+        root_dir: staged
+        sub_dir: final/published/scores_data/
+        filename: /SUPPLIER//regos.html

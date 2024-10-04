@@ -6,6 +6,8 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+import scores.common
+import scores.common.utils
 import scores.core.supplier_gen_by_tech_by_month
 
 
@@ -49,18 +51,23 @@ tech_simple = {
 
 @click.command()
 @click.option(
-    "--path",
+    "--regos",
     type=click.Path(exists=True, file_okay=True, dir_okay=False, path_type=Path),
     help="Path to REGO csv",
 )
 @click.option(
-    "--current-holder",
+    "--suppliers",
     type=str,
-    help="Current holder of REGOs",
+    help="Path to suppliers.yaml",
 )
-def main(path: Path, current_holder: str) -> None:
+def main(regos: Path, suppliers: str) -> None:
+    for supplier in scores.common.utils.from_yaml_file(suppliers):
+        plot_supplier(regos, supplier["rego_organisation_name"])
+
+
+def plot_supplier(regos: Path, current_holder: str, output_path: Path) -> None:
     regos_supplier = scores.core.supplier_gen_by_tech_by_month.read(
-        path, current_holder_organisation_name=current_holder
+        regos, current_holder_organisation_name=current_holder
     )
     regos_supplier["MWh"] = (
         regos_supplier["MWh Per Certificate"] * regos_supplier["No. Of Certificates"]
@@ -91,7 +98,7 @@ def main(path: Path, current_holder: str) -> None:
         regos_supplier.groupby("tech_simple")["MWh"].sum().sort_values(ascending=False)
     )
 
-    regos_all = scores.core.supplier_gen_by_tech_by_month.read(path)
+    regos_all = scores.core.supplier_gen_by_tech_by_month.read(regos)
     regos_all["MWh"] = (
         regos_all["MWh Per Certificate"] * regos_all["No. Of Certificates"]
     )
@@ -101,8 +108,8 @@ def main(path: Path, current_holder: str) -> None:
         .reindex(regos_supplier_by_station.index)
     )
 
-    print(f"Number of entries {len(regos_supplier)}")
-    print(f"Number of stations {len(regos_supplier_by_station)}")
+    if len(regos_supplier) == 0:
+        return
 
     row_heights = [0.33, 0.33, 0.33]
     column_widths = [0.8, 0.2]
@@ -281,9 +288,6 @@ def main(path: Path, current_holder: str) -> None:
     )
 
     ## BOTTOM-RIGHT
-    print("*" * 80)
-    print(regos_supplier_by_tech_simple)
-    print("*" * 80)
     fig.add_trace(
         go.Bar(
             x=regos_supplier_by_tech_simple.index,
@@ -347,7 +351,7 @@ def main(path: Path, current_holder: str) -> None:
         plot_bgcolor="rgba(255,255,255,1)",
         paper_bgcolor="rgba(255,255,255,1)",
     )
-    fig.write_html("/Users/jjk/tmp/rego_analysis.html")
+    fig.write_html(output_path)
 
 
 if __name__ == "__main__":

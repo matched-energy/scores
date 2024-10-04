@@ -1,6 +1,8 @@
 import sys
 from pprint import pprint
 
+import scores.analytics
+import scores.analytics.rego_analysis
 import scores.core.grid_gen_by_tech_by_month
 import scores.core.supplier_gen_by_tech_by_half_hour
 import scores.core.supplier_gen_by_tech_by_month
@@ -133,6 +135,16 @@ def publish(run_conf, step_conf, supplier):
     return {}
 
 
+def rego_analysis(run, step_conf, supplier):
+    subs = dict(SUPPLIER=supplier["file_id"])
+    scores.analytics.rego_analysis.plot_supplier(
+        regos=make_path(step_conf, "input", "path_raw_rego"),
+        current_holder=supplier["rego_organisation_name"],
+        output_path=make_path(step_conf, "output", "plot_target_path", subs),
+    )
+    return {}
+
+
 def process_suppliers(*args) -> dict[str, dict]:
     ## where does year belong? needs apply to regos and grid.
     ## ^   should handle in pre-processing
@@ -152,6 +164,7 @@ def process_suppliers(*args) -> dict[str, dict]:
         r.update(run_step(supplier_gen_by_tech_by_half_hour, run_conf, supplier))
         r.update(run_step(supplier_scores, run_conf, supplier))
         r.update(run_step(publish, run_conf, supplier))
+        r.update(run_step(rego_analysis, run_conf, supplier))
         results[supplier["name"]] = r
 
     pprint(results)
