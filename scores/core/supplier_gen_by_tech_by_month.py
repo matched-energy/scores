@@ -72,9 +72,14 @@ class StatisticsProcessed:
         return d["MWh"].sum()
 
 
-def read(filepath: Path, current_holder_organisation_name: str) -> pd.DataFrame:
+def read(filepath: Path, current_holder_organisation_name: str = None) -> pd.DataFrame:
     d = pd.read_csv(filepath, names=COLUMNS, skiprows=4)
-    return d[d["Current Holder Organisation Name"] == current_holder_organisation_name]
+    if current_holder_organisation_name:
+        return d[
+            d["Current Holder Organisation Name"] == current_holder_organisation_name
+        ]
+    else:
+        return d
 
 
 def parse_output_period(d: pd.DataFrame) -> pd.DataFrame:
