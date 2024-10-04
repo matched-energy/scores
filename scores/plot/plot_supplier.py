@@ -1,5 +1,4 @@
 import datetime
-
 from pathlib import Path
 
 import matplotlib.colors as mcolors
@@ -11,7 +10,6 @@ from plotly.subplots import make_subplots
 import scores.configuration.conf as conf
 
 
-
 def plot_load(df: pd.DataFrame) -> None:
     fig = go.Figure(
         data=go.Scatter(
@@ -20,12 +18,11 @@ def plot_load(df: pd.DataFrame) -> None:
     )
     fig.show()
 
-    
+
 def plot_load_and_gen(
     hh_generation: pd.DataFrame, l_hh: pd.Series, output_path: Path
 ) -> None:
 
-    for tech in conf.read("generation.yaml", conf_dir=True)["TECH"]:
     hh_generation["total"] = hh_generation.drop(columns=["DATETIME"]).sum(axis=1)
     # row_heights = [0.7, 0.3]
     row_heights = [1]
@@ -252,10 +249,10 @@ def plot_load_and_gen(
 
 
 def plot_load_and_gen_details(
-  hh_generation: pd.DataFrame, 
-  l_hh: pd.Series, 
-  hh_load: pd.DataFrame, 
-  output_path: Path
+    hh_generation: pd.DataFrame,
+    l_hh: pd.Series,
+    hh_load: pd.DataFrame,
+    output_path: Path,
 ) -> None:
     fig = go.Figure()
 

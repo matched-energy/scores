@@ -1,7 +1,6 @@
 import collections
 import pprint
 import sys
-
 from pathlib import Path
 from typing import Optional
 
@@ -108,7 +107,6 @@ def main(
     scoring_methodology: str,
     output_path_scores: Optional[Path] = None,
     output_path_plot: Optional[Path] = None,
-    s
 ) -> dict[str, dict[str, float]]:
     ## TODO - hh_load --> bsc_hh
     ## TODO - assert timeseries are aligned
