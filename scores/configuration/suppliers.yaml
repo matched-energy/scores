@@ -118,12 +118,12 @@
   scoring_methodology: independent_generation
   confidence: medium 
 
-- name: London Power 
-  file_id: london-power 
-  bsc_party_id: LPN 
-  rego_organisation_name: tbd
-  scoring_methodology: independent_generation
-  confidence: medium 
+# - name: London Power 
+#   file_id: london-power 
+#   bsc_party_id: LPN 
+#   rego_organisation_name: tbd
+#   scoring_methodology: independent_generation
+#   confidence: medium 
 
 - name: EDF Energy 
   file_id: edf-energy 
@@ -153,9 +153,9 @@
   scoring_methodology: independent_generation
   confidence: medium 
 
-- name: Co-operative Energy
-  file_id: co-operative-energy 
-  bsc_party_id: VOLA 
-  rego_organisation_name: Utilita Electricity Limited
-  scoring_methodology: independent_generation
-  confidence: medium 
+# - name: Co-operative Energy
+#   file_id: co-operative-energy 
+#   bsc_party_id: VOLA 
+#   rego_organisation_name: Utilita Electricity Limited
+#   scoring_methodology: independent_generation
+#   confidence: medium 

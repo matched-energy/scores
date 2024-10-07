@@ -82,7 +82,14 @@ def read(filepath: Path, current_holder_organisation_name: str = None) -> pd.Dat
         return d
 
 
-def parse_output_period(d: pd.DataFrame) -> pd.DataFrame:
+def parse_output_period(df_regos: pd.DataFrame) -> pd.DataFrame:
+    df = df_regos.copy(deep=True)
+    if df.empty:
+        df[["start", "end", "months_different"]] = pd.DataFrame(
+            columns=["start", "end", "months_difference"]
+        )
+        return df
+
     def parse_date_range(date_str: str) -> tuple[pd.Timestamp, pd.Timestamp]:
         if "/" in date_str:
             start, end = date_str.split(" - ")
@@ -106,11 +113,11 @@ def parse_output_period(d: pd.DataFrame) -> pd.DataFrame:
     # df = pd.DataFrame(d, columns=["date_range"])
 
     # Apply function to create start and end columns
-    d[["start", "end"]] = d["Output Period"].apply(
+    df[["start", "end"]] = df["Output Period"].apply(
         lambda x: pd.Series(parse_date_range(x))
     )
-    d["end"] += np.timedelta64(1, "D")
-    d["months_difference"] = d.apply(
+    df["end"] += np.timedelta64(1, "D")
+    df["months_difference"] = df.apply(
         lambda row: relativedelta(row["end"], row["start"]).years * 12
         + relativedelta(row["end"], row["start"]).months,
         axis=1,
@@ -122,7 +129,7 @@ def parse_output_period(d: pd.DataFrame) -> pd.DataFrame:
     #     df[month_name] = (df["start"].dt.month <= month) & (df["end"].dt.month >= month)
 
     # df.to_csv("test.csv")
-    return d
+    return df
 
 
 def calculate_monthly_generation(d: pd.DataFrame) -> pd.DataFrame:
@@ -130,9 +137,7 @@ def calculate_monthly_generation(d: pd.DataFrame) -> pd.DataFrame:
     for _, row in d.iterrows():
         if row["months_difference"] > 12:
             print(
-                r"!!! WARNING!!! Cannot handle period from {} to {} for Accreditation Number {} - allowable range is 1 to 12 months".format(
-                    row["start"], row["end"], row["Accreditation No."]
-                )
+                f'!!! WARNING!!!  Accreditation Number {row["Accreditation No."]} exceeds 12 months ({row["start"]} to {row["end"]}): volume {int(row["No. Of Certificates"] * row["MWh Per Certificate"])}, current holder {row["Current Holder Organisation Name"]}'
             )
             continue
         for i in range(row["months_difference"]):
@@ -202,10 +207,11 @@ def simplify_technology_classification(d_agg_month_tech: pd.DataFrame) -> pd.Dat
         "Hydro greater than 20MW DNC": "HYRDRO",
         "Sewage Gas": "OTHER",
         "Biodegradable": "BIOMASS",
+        "Filled Storage Hydro": "HYDRO",
     }
     d_agg_month_tech["Technology Group Simplified"] = d_agg_month_tech[
         "Technology Group"
-    ].apply(lambda x: mapping[x])
+    ].apply(lambda x: mapping[x.strip()])
     d_agg_month_simplified_tech = (
         d_agg_month_tech.groupby(["Output Month", "Technology Group Simplified"])["MWh"]
         .sum()
