@@ -68,8 +68,10 @@ def independent_generation(
 def embedded_generation(
     g_rego_hh: pd.Series, bsc_hh: pd.DataFrame
 ) -> tuple[pd.Series, dict[str, float]]:
-    g_hh = g_rego_hh
-    l_hh = g_rego_hh - bsc_hh["BM Unit Metered Volume"]
+    g_hh = pd.DataFrame(
+        {"series1": g_rego_hh, "series2": bsc_hh["BM Unit Metered Volume"]}
+    ).max(axis=1)
+    l_hh = g_hh - bsc_hh["BM Unit Metered Volume"]
     r_hh = -bsc_hh["BM Unit Metered Volume"]
 
     return l_hh, assemble_stats(bsc_hh, r_hh, g_hh, l_hh, g_embedded_ratio=1)
