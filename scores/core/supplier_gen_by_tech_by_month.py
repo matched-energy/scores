@@ -72,11 +72,16 @@ class StatisticsProcessed:
         return d["MWh"].sum()
 
 
-def read(filepath: Path, current_holder_organisation_name: str = None) -> pd.DataFrame:
+def read(
+    filepath: Path,
+    current_holder_organisation_name: str = None,
+    status: str = "Redeemed",
+) -> pd.DataFrame:
     d = pd.read_csv(filepath, names=COLUMNS, skiprows=4)
     if current_holder_organisation_name:
         return d[
-            d["Current Holder Organisation Name"] == current_holder_organisation_name
+            (d["Current Holder Organisation Name"] == current_holder_organisation_name)
+            & (d["Certificate Status"] == status)
         ]
     else:
         return d
