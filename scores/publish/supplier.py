@@ -27,6 +27,7 @@ def publish_scores(
         f'title: {supplier["name"]}',
         f"bsc_party_id: {supplier['bsc_party_id']}",
         f"rego_organisation_name: {supplier['rego_organisation_name']}",
+        f"bsc_hh_sum_GWh: {(supplier_scores['bsc_hh_sum'] / 1000):.0f}",
         f"l_hh_sum_GWh: {(supplier_scores['l_hh_sum'] / 1000):.0f}",
         f"l_hh_sum_GWh_pretty: '{(supplier_scores['l_hh_sum'] / 1000):,.0f}'",
         f"g_hh_sum_GWh: {(supplier_scores['g_hh_sum'] / 1000):,.0f}",
