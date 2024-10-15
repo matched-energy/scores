@@ -4,6 +4,7 @@
   bm_unit_tag: PURE
   rego_organisation_name: Good Energy Ltd
   scoring_methodology: embedded_generation 
+  known_issues: Inferred consumption is occasionally 0 MWh due to an underestimation of embedded generation
   confidence: medium 
 
 - name: Octopus 
@@ -20,6 +21,7 @@
   bsc_party_id: RENC
   rego_organisation_name: Ecotricity Limited
   scoring_methodology: mixed_generation 
+  known_issues: We overestimate consumption in months with large certificate purchases
   confidence: very_low!
 
 - name: 100 Green
@@ -27,6 +29,7 @@
   bsc_party_id: GRNUKPLC
   rego_organisation_name: Green Energy (UK) PLC
   scoring_methodology: mixed_generation 
+  known_issues: We overestimate consumption in months with large certificate purchases
   confidence: very_low!
 
 - name: So Energy 
