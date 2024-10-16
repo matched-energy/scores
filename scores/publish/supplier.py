@@ -14,11 +14,22 @@ def publish_scores(
     plot_target_path: Path,
     supplier: dict[str, Any],
 ) -> None:
+
+    ### Show supplier?
+    if not supplier.get("show", True):
+        return
+
+    ### For the time being focus on suppliers who report at least 90% volumetric matching
+    fmd = supplier.get("fmd_renewables", {2023: None})[2023]
+    if fmd is None or fmd < 90:
+        return
+
     supplier_scores = utils.from_yaml_file(scores_input_path)[
         supplier["scoring_methodology"]
     ]
     lines = [
         "---",
+        f"show: {supplier.get('show')}",
         f"permalink: /scores/{supplier['file_id']}/",
         "permalink_validation: false",
         f"fs_path: /scores/data/{supplier['file_id']}",
@@ -27,7 +38,10 @@ def publish_scores(
         f'title: {supplier["name"]}',
         f"bsc_party_id: {supplier['bsc_party_id']}",
         f"rego_organisation_name: {supplier['rego_organisation_name']}",
+        f"elexon_import_GWh: {supplier.get('elexon', {'imports': None})['imports']}",
+        f"elexon_export_GWh: {supplier.get('elexon', {'exports': None})['exports']}",
         f"bsc_hh_sum_GWh: {(supplier_scores['bsc_hh_sum'] / 1000):.0f}",
+        f"bsc_hh_sum_GWh_pretty: '{(supplier_scores['bsc_hh_sum'] / 1000):,.0f}'",
         f"l_hh_sum_GWh: {(supplier_scores['l_hh_sum'] / 1000):.0f}",
         f"l_hh_sum_GWh_pretty: '{(supplier_scores['l_hh_sum'] / 1000):,.0f}'",
         f"g_hh_sum_GWh: {(supplier_scores['g_hh_sum'] / 1000):,.0f}",
@@ -44,6 +58,7 @@ def publish_scores(
         f"confidence: {supplier['confidence']}",
         f"notes: {supplier.get('notes', '')}",
         f"known_issues: {supplier.get('known_issues', '')}",
+        f"fmd_renewables_2023: {fmd}",
         "---",
     ]
     with open(scores_output_path, "w") as f:
