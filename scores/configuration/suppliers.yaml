@@ -4,33 +4,73 @@
   bm_unit_tag: PURE
   rego_organisation_name: Good Energy Ltd
   scoring_methodology: embedded_generation 
-  known_issues: Inferred consumption is occasionally 0 MWh due to an underestimation of embedded generation
+  known_issues: 
+    - "We estimate the following have ±2% effect on the temporal-matching score:"
+    - 1. We could directly use metered volumes from Category 1 BMUs such as Westermost Rough
+    - 2. We overestimate gross demand at times of high generation
+    - 3. It seems there is a lot of embedded generation that isn't registered with Ofgem and this causes an underestimation of gross demand
+    - "&nbsp;"
+    - "These issues will be addressed in v0.2 of the scoring methodology"
   confidence: medium 
-
-- name: Octopus 
-  file_id: octopus
-  bsc_party_id: MERCURY 
-  bm_unit_tag: MRCY
-  rego_organisation_name: Octopus Energy Limited
-  scoring_methodology: independent_generation 
-  known_issues: We expect 100% volumetric matching and are reviewing our calculations  
-  confidence: medium 
-
-- name: Ecotricity 
-  file_id: ecotricity
-  bsc_party_id: RENC
-  rego_organisation_name: Ecotricity Limited
-  scoring_methodology: mixed_generation 
-  known_issues: We overestimate consumption in months with large certificate purchases
-  confidence: very_low!
+  fmd_renewables: 
+    2023: 100
+  elexon: 
+    imports: not reported 
+    exports: --"-- 
 
 - name: 100 Green
   file_id: 100-green
   bsc_party_id: GRNUKPLC
   rego_organisation_name: Green Energy (UK) PLC
   scoring_methodology: mixed_generation 
-  known_issues: We overestimate consumption in months with large certificate purchases
+  known_issues: 
+    - "We estimate the following have a ±5% effect on the temporal-matching score:"
+    - 1. We have very crude delineation between embedded/remote generation 
+    - 2. We overestimate gross demand in months with large certificate purchases (though this only has secondary effect on matching scores)
+    - "&nbsp;"
+    - "These issues will be addressed in v0.2 of the scoring methodology"
   confidence: very_low!
+  fmd_renewables: 
+    2023: 100
+  elexon: 
+    imports: not reported 
+    exports: --"-- 
+
+- name: E.ON Next Energy Ltd
+  file_id: eon-next 
+  bsc_party_id: NITTWO01
+  rego_organisation_name: E.ON Next Energy Limited
+  scoring_methodology: mixed_generation 
+  confidence: low
+  known_issues: 
+    - "We estimate the following have a ±5% effect on the temporal-matching score:"
+    - 1. We have very crude delineation between embedded/remote generation 
+    - 2. We overestimate gross demand in days with large certificate purchases 
+    - "&nbsp;"
+    - "These issues will be addressed in v0.2 of the scoring methodology"
+  fmd_renewables: 
+    2023: 100
+  elexon: 
+    imports: not reported specifically for E.ON Next Energy # "46,358 (entire E.ON portfolio)" 
+    exports: --"-- # "4,494 (entire E.ON portfolio)" 
+
+- name: Ecotricity 
+  file_id: ecotricity
+  bsc_party_id: RENC
+  rego_organisation_name: Ecotricity Limited
+  scoring_methodology: mixed_generation 
+  known_issues: 
+    - "We estimate the following have a ±5% effect on the temporal-matching score:"
+    - 1. We have very crude delineation between embedded/remote generation 
+    - 2. We overestimate gross demand in months with large certificate purchases (though this only has secondary effect on matching scores)
+    - "&nbsp;"
+    - "These issues will be addressed in v0.2 of the scoring methodology"
+  confidence: very_low!
+  fmd_renewables: 
+    2023: 100
+  elexon: 
+    imports: not reported 
+    exports: --"-- 
 
 - name: So Energy 
   file_id: so-energy
@@ -38,6 +78,33 @@
   rego_organisation_name: So Energy Trading Limited 
   scoring_methodology: independent_generation 
   confidence: medium
+  known_issues:
+    - "We estimate the following have a ±0.5% effect on the temporal-matching score:"
+    - 1. We treat all generation as remote (i.e. no embedded generation) and therefore overestimate matching
+    - "&nbsp;"
+    - "These issues will be addressed in v0.2 of the scoring methodology"
+  fmd_renewables: 
+    2023: 100
+  elexon: 
+    imports: "1,246 GWh"
+    exports: "2 GWh" 
+
+- name: Octopus 
+  file_id: octopus
+  bsc_party_id: MERCURY 
+  bm_unit_tag: MRCY
+  rego_organisation_name: Octopus Energy Limited
+  scoring_methodology: independent_generation 
+  known_issues: 
+    - "- We believe the 'calculated volumetric match' is less than 100% because we do not account for EU GOOs" 
+    - "- We treat all generation as remote (i.e. no embedded generation) and therefore slightly overestimate  temporal matching"
+    - "- These calculations do not include customers acquired from Bulb or Shell Energy Retail" 
+  confidence: medium 
+  fmd_renewables: 
+    2023: 100
+  elexon: 
+    imports: "12,872 GWh" 
+    exports: "701 GWh" 
 
 - name: Bulb 
   file_id: bulb 
@@ -47,11 +114,19 @@
   confidence: low 
 
 - name: Shell Energy Retail Limited 
+  show: false 
   file_id: shell-energy-retail-limited 
   bsc_party_id: FRST01 
   rego_organisation_name: Shell Energy Retail Limited
   scoring_methodology: independent_generation 
   confidence: medium
+  known_issues: 
+     - "!!!"
+  fmd_renewables: 
+    2023: 100
+  elexon: 
+    imports: not reported 
+    exports: --"-- 
 
 - name: Squeaky Clean Energy Limited
   file_id: squeaky-clean-energy-limited 
@@ -59,6 +134,25 @@
   rego_organisation_name: Squeaky Clean Energy Limited
   scoring_methodology: independent_generation 
   confidence: medium
+  fmd_renewables: 
+    2023: 100
+  elexon: 
+    imports: not reported 
+    exports: --"-- 
+
+
+- name: Bryt Energy Limited
+  file_id: bryt-energy 
+  bsc_party_id: BULLION
+  rego_organisation_name: Bryt Energy Limited
+  scoring_methodology: independent_generation
+  confidence: medium 
+  fmd_renewables: 
+    2023: 100
+  elexon: 
+    imports: not reported 
+    exports: --"-- 
+
 
 # - name: Squeaky Clean Energy Trading Limited
 #   file_id: squeaky-clean-energy-trading-limited 
@@ -71,6 +165,10 @@
   rego_organisation_name: ScottishPower Energy Retail Ltd
   scoring_methodology: independent_generation 
   confidence: medium
+  known_issues:
+    - We do not currently account for the fraction of renewable generation that is embedded and therefore (slightly) overestimate matching
+  fmd_renewables: 
+    2023: 11 
 
 - name: OVO Electricity Limited
   file_id: ovo 
@@ -78,6 +176,10 @@
   rego_organisation_name: Ovo Energy
   scoring_methodology: independent_generation 
   confidence: medium
+  known_issues:
+    - We do not currently account for the fraction of renewable generation that is embedded and therefore (slightly) overestimate matching
+  fmd_renewables: 
+    2023: 44.8 
 
 - name: British Gas Trading Ltd
   file_id: british-gas 
@@ -85,20 +187,8 @@
   rego_organisation_name: British Gas Trading Ltd
   scoring_methodology: independent_generation 
   confidence: medium
-
-- name: E.ON Next Energy Ltd
-  file_id: eon-next 
-  bsc_party_id: NITTWO01
-  rego_organisation_name: E.ON Next Energy Limited
-  scoring_methodology: mixed_generation 
-  confidence: low
-
-- name: Bryt Energy Limited
-  file_id: bryt-energy 
-  bsc_party_id: BULLION
-  rego_organisation_name: Bryt Energy Limited
-  scoring_methodology: independent_generation
-  confidence: medium 
+  fmd_renewables: 
+    2023: 54 
 
 - name: Rebel Energy 
   file_id: rebel-energy 
@@ -106,6 +196,8 @@
   rego_organisation_name: Rebel Energy (Cilleni)
   scoring_methodology: independent_generation
   confidence: medium 
+  fmd_renewables: 
+    2023: 8  # 2024 number?
 
 - name: Outfox The Market 
   file_id: outfox-the-market 
@@ -113,6 +205,8 @@
   rego_organisation_name: Foxglove Energy Supply Limited
   scoring_methodology: independent_generation
   confidence: medium 
+  fmd_renewables: 
+    2023: 100
 
 - name: Fuse Energy  
   file_id: fuse-energy  
@@ -134,6 +228,8 @@
   rego_organisation_name: EDF Energy Customers Plc
   scoring_methodology: independent_generation
   confidence: medium 
+  fmd_renewables: 
+    2023: 21 
 
 - name: SSE 
   file_id: sse 
@@ -141,6 +237,8 @@
   rego_organisation_name: SSE Energy Supply Ltd
   scoring_methodology: independent_generation
   confidence: medium 
+  fmd_renewables: 
+    2023: 53 
 
 # - name: Utility Warehouse
 #   file_id: utility-warehouse 
@@ -155,6 +253,8 @@
   rego_organisation_name: Utilita Electricity Limited
   scoring_methodology: independent_generation
   confidence: medium 
+  fmd_renewables: 
+    2023: 12
 
 # - name: Co-operative Energy
 #   file_id: co-operative-energy 
